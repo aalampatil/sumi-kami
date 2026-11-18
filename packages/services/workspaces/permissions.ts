@@ -24,3 +24,9 @@ const editorCapabilities: readonly WorkspaceCapability[] = [
   "responses:read",
   "responses:export",
 ];
+
+const viewerCapabilities: readonly WorkspaceCapability[] = [
+  "workspace:read",
+  "forms:read",
+  "responses:read",
+];
