@@ -62,3 +62,7 @@ test("creation rejects backdating workspace creation", () => {
     false,
   );
 });
+
+test("creation rejects overriding retention during creation", () => {
+  assert.equal(createWorkspaceSchema.safeParse({ ...create, retentionDays: 1 }).success, false);
+});
