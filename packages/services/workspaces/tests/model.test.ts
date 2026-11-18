@@ -279,3 +279,7 @@ test("summary contracts reject raw membership records", () => {
 test("summary contracts reject internal deletion fields", () => {
   assert.equal(workspaceSummarySchema.safeParse({ ...summary, deletedAt: null }).success, false);
 });
+
+test("a platform creator role cannot satisfy a workspace role contract", () => {
+  assert.equal(workspaceSummarySchema.safeParse({ ...summary, role: "CREATOR" }).success, false);
+});
