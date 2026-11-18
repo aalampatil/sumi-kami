@@ -14,7 +14,7 @@ async function AccountOverview() {
         <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
           Your creative space
         </p>
-        <h1 id="account-heading" className="mt-3 text-3xl font-semibold tracking-tight">
+        <h1 id="account-heading" className="mt-3 break-words text-3xl font-semibold tracking-tight">
           Welcome, {user.fullName}
         </h1>
         <p className="mt-3 text-sm text-muted-foreground">
