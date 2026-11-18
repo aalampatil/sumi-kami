@@ -1,5 +1,5 @@
 import { auth } from "@clerk/nextjs/server";
-import { TRPCClientError } from "@repo/trpc/client";
+import { TRPCClientError } from "@trpc/client";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Suspense } from "react";
