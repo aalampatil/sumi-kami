@@ -7,7 +7,7 @@
     "auth:import:clerk": "tsx auth/import-clerk-users.ts",
     "test:auth": "tsx --test auth/clerk.integration.test.ts",
     "check-types": "tsc --noEmit",
-    "test:workspaces:unit": "tsx --test workspaces/*.test.ts"
+    "test:workspaces:unit": "tsx --test workspaces/tests/*.test.ts"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",
