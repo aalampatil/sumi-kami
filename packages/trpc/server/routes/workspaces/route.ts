@@ -10,4 +10,10 @@ import { protectedProcedure, router } from "../../trpc";
 import { workspaceService } from "../../services";
 import { workspaceOperation } from "./errors";
 
-export const workspacesRouter = router({});
+export const workspacesRouter = router({
+  list: protectedProcedure
+    .meta({ openapi: { method: "GET", path: "/workspaces", tags: ["Workspaces"], protect: true } })
+    .input(listWorkspacesSchema)
+    .output(workspacePageSchema)
+    .query(({ ctx, input }) => workspaceOperation(() => workspaceService.list(ctx.user.id, input))),
+});
