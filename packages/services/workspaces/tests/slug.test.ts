@@ -25,3 +25,7 @@ test("leave non-Latin names ready for an explicit address", () => {
 test("preserve numeric workspace names", () => {
   assert.equal(suggestWorkspaceSlug("Studio 2026"), "studio-2026");
 });
+
+test("trim separators at the address boundary", () => {
+  assert.equal(suggestWorkspaceSlug(" -- Studio -- "), "studio");
+});
