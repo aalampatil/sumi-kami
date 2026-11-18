@@ -144,3 +144,7 @@ test("settings reject unbounded retention", () => {
 test("settings reject stringly typed retention", () => {
   assert.equal(updateWorkspaceSchema.safeParse({ ...update, retentionDays: "30" }).success, false);
 });
+
+test("an explicit null removes retention without inventing a zero-day policy", () => {
+  assert.equal(updateWorkspaceSchema.parse(update).retentionDays, null);
+});
