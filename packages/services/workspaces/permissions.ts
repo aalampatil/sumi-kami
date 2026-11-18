@@ -13,3 +13,5 @@ export const workspaceCapabilities = [
 export type WorkspaceCapability = (typeof workspaceCapabilities)[number];
 
 const ownerCapabilities: readonly WorkspaceCapability[] = workspaceCapabilities;
+
+const adminCapabilities: readonly WorkspaceCapability[] = workspaceCapabilities;
