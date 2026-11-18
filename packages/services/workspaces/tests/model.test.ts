@@ -73,3 +73,10 @@ test("creation rejects injecting unrelated form state", () => {
     false,
   );
 });
+
+test("serialized prototype fields cannot bypass strict creation input", () => {
+  const payload: unknown = JSON.parse(
+    JSON.stringify(create).slice(0, -1) + ',"__proto__":{"role":"OWNER"}}',
+  );
+  assert.equal(createWorkspaceSchema.safeParse(payload).success, false);
+});
