@@ -86,7 +86,7 @@ before(async () => {
       id + "@example.invalid",
       key === "platformAdmin" ? "ADMIN" : "CREATOR",
     ]);
-  const createWorkspace = (actor = users.owner) =>
+  const createWorkspace = (actor: string = users.owner) =>
     service.create(actor, { name: "Integration workspace", slug: "w-" + randomUUID() });
   const workspace = await createWorkspace();
   const otherWorkspace = await createWorkspace(users.stranger);
