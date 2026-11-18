@@ -275,3 +275,7 @@ test("summary contracts reject internal owner attribution", () => {
 test("summary contracts reject raw membership records", () => {
   assert.equal(workspaceSummarySchema.safeParse({ ...summary, memberships: [] }).success, false);
 });
+
+test("summary contracts reject internal deletion fields", () => {
+  assert.equal(workspaceSummarySchema.safeParse({ ...summary, deletedAt: null }).success, false);
+});
