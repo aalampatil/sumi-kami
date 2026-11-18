@@ -29,3 +29,7 @@ test("owner can forms publish", () => {
 test("owner can responses read", () => {
   assert.equal(hasWorkspaceCapability("OWNER", "responses:read"), true);
 });
+
+test("owner can responses export", () => {
+  assert.equal(hasWorkspaceCapability("OWNER", "responses:export"), true);
+});
