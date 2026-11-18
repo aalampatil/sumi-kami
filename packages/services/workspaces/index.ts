@@ -85,4 +85,7 @@ export class WorkspaceService {
       };
     });
   }
+  async get(actorUserId: string, workspaceId: string): Promise<WorkspaceSummary> {
+    return discoverWorkspace(this.database(), actorUserId, workspaceId);
+  }
 }
