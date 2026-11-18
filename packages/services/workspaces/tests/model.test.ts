@@ -129,3 +129,7 @@ test("settings reject zero-day retention", () => {
 test("settings reject negative retention", () => {
   assert.equal(updateWorkspaceSchema.safeParse({ ...update, retentionDays: -1 }).success, false);
 });
+
+test("settings reject fractional retention", () => {
+  assert.equal(updateWorkspaceSchema.safeParse({ ...update, retentionDays: 1.5 }).success, false);
+});
