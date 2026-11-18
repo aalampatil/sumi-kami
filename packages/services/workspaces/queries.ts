@@ -9,3 +9,7 @@ export const workspaceColumns = {
   retentionDays: workspacesTable.retentionDays,
   createdAt: sql<string>`to_char(${workspacesTable.createdAt} AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"')`,
 };
+
+export function effectiveWorkspaceRole(actorUserId: string) {
+  return sql<WorkspaceRole>`CASE WHEN ${workspacesTable.ownerUserId} = ${actorUserId}::uuid THEN 'OWNER' ELSE ${workspaceMembershipsTable.role} END`;
+}
