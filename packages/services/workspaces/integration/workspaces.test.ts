@@ -92,3 +92,18 @@ test("permit admins to update workspace settings", async () => {
   assert.equal(updated.retentionDays, 30);
   assert.equal(updated.role, "ADMIN");
 });
+
+test("reject editor settings writes while preserving data", async () => {
+  const f = getFixture();
+  const before = await f.service.get(f.users.editor, f.workspace.id);
+  await accessFailure(
+    () =>
+      f.service.update(f.users.editor, {
+        workspaceId: f.workspace.id,
+        name: "Forbidden editor update",
+        retentionDays: 1,
+      }),
+    "FORBIDDEN",
+  );
+  assert.equal((await f.service.get(f.users.editor, f.workspace.id)).name, before.name);
+});
