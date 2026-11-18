@@ -1,0 +1,62 @@
+/* Product chrome only. Published forms will use their own versioned appearance. */
+:root {
+  --background: #f5f0e6;
+  --foreground: #171714;
+  --card: #fcfaf6;
+  --card-foreground: #171714;
+  --popover: #fcfaf6;
+  --popover-foreground: #171714;
+  --primary: #171714;
+  --primary-foreground: #fcfaf6;
+  --secondary: #e9e3d8;
+  --secondary-foreground: #171714;
+  --muted: #e9e3d8;
+  --muted-foreground: #68645d;
+  --accent: #e9e3d8;
+  --accent-foreground: #171714;
+  --border: #d8d0c3;
+  --input: #827a6e;
+  --ring: #9f382c;
+  --destructive: #a12c32;
+}
+
+.dark {
+  --background: #191b19;
+  --foreground: #ece6d8;
+  --card: #222521;
+  --card-foreground: #ece6d8;
+  --popover: #222521;
+  --popover-foreground: #ece6d8;
+  --primary: #ece6d8;
+  --primary-foreground: #191b19;
+  --secondary: #30342e;
+  --secondary-foreground: #ece6d8;
+  --muted: #30342e;
+  --muted-foreground: #b6b09f;
+  --accent: #30342e;
+  --accent-foreground: #ece6d8;
+  --border: #454a41;
+  --input: #79816f;
+  --ring: #e1947c;
+  --destructive: #f19a9d;
+}
+
+body {
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

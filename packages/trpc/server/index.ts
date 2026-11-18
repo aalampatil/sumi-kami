@@ -1,3 +1,4 @@
+import { workspacesRouter } from "./routes/workspaces/route";
 import { router } from "./trpc";
 import { publicProcedure } from "./trpc";
 import { z } from "zod";
@@ -7,6 +8,7 @@ import { publicRouter } from "./routes/public/route";
 
 export const serverRouter = router({
   health: healthRouter,
+  workspaces: workspacesRouter,
   auth: authRouter,
   public: publicRouter,
   test: publicProcedure

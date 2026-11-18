@@ -8,3 +8,7 @@ export type RouterInputs = inferRouterInputs<ServerRouter>;
 export type { ServerRouter } from "../server";
 
 export * from "@trpc/client";
+
+export type { WorkspaceSummary, WorkspacePage } from "@repo/services/workspaces/model";
+
+export { TRPCClientError } from "@trpc/client";
