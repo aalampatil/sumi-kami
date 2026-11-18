@@ -27,3 +27,14 @@ test("derive workspace owners from the authenticated actor", async () => {
   assert.equal(result.rows[0].owner_user_id, f.users.editor);
   assert.equal(created.role, "OWNER");
 });
+
+test("attribute workspace creation to the current actor", async () => {
+  const f = getFixture();
+  const created = await f.createWorkspace();
+  const result = await f.pool.query(
+    "SELECT actor_user_id FROM builder.workspace_audit_events WHERE workspace_id=$1 AND entity_type='workspaces'",
+    [created.id],
+  );
+  assert.ok(result.rows.length);
+  assert.ok(result.rows.every((row) => row.actor_user_id === f.users.owner));
+});
