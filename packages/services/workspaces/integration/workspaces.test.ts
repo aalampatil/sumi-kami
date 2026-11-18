@@ -38,3 +38,9 @@ test("attribute workspace creation to the current actor", async () => {
   assert.ok(result.rows.length);
   assert.ok(result.rows.every((row) => row.actor_user_id === f.users.owner));
 });
+
+test("list owned workspaces without requiring membership rows", async () => {
+  const f = getFixture();
+  const result = await f.service.list(f.users.stranger, { limit: 50 });
+  assert.ok(result.items.some((item) => item.id === f.otherWorkspace.id && item.role === "OWNER"));
+});
