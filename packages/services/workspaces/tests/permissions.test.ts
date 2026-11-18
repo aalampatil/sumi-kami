@@ -109,3 +109,7 @@ test("viewer cannot workspace update", () => {
 test("viewer cannot members manage", () => {
   assert.equal(hasWorkspaceCapability("VIEWER", "members:manage"), false);
 });
+
+test("viewer can forms read", () => {
+  assert.equal(hasWorkspaceCapability("VIEWER", "forms:read"), true);
+});
