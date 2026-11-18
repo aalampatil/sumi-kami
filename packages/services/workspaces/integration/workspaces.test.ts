@@ -275,3 +275,14 @@ test("keep actor discovery policies disabled inside tenant transactions", async 
     f.users.stranger,
   );
 });
+
+test("reset actor and workspace context after pooled transactions", async () => {
+  const f = getFixture();
+  await f.service.list(f.users.owner, { limit: 20 });
+  await f.service.get(f.users.viewer, f.workspace.id);
+  const result = await f.runtimePool.query(
+    "SELECT current_setting('app.workspace_id',true) AS workspace,current_setting('app.actor_user_id',true) AS actor",
+  );
+  assert.ok(!result.rows[0].workspace);
+  assert.ok(!result.rows[0].actor);
+});
