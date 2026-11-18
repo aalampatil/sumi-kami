@@ -51,4 +51,38 @@ export class WorkspaceService {
       throw error;
     }
   }
+  async list(actorUserId: string, request: ListWorkspacesInput): Promise<WorkspacePage> {
+    const input = listWorkspacesSchema.parse(request);
+    return withWorkspaceDiscovery(this.database(), actorUserId, async (transaction) => {
+      const records = await transaction
+        .select({ ...workspaceColumns, role: effectiveWorkspaceRole(actorUserId) })
+        .from(workspacesTable)
+        .leftJoin(
+          workspaceMembershipsTable,
+          and(
+            eq(workspaceMembershipsTable.workspaceId, workspacesTable.id),
+            eq(workspaceMembershipsTable.userId, actorUserId),
+          ),
+        )
+        .where(
+          and(
+            isNull(workspacesTable.deletedAt),
+            input.cursorCreatedAt && input.cursorId
+              ? sql`(${workspacesTable.createdAt}, ${workspacesTable.id}) < (${input.cursorCreatedAt}::timestamptz, ${input.cursorId}::uuid)`
+              : undefined,
+          ),
+        )
+        .orderBy(desc(workspacesTable.createdAt), desc(workspacesTable.id))
+        .limit(input.limit + 1);
+      const items = records
+        .slice(0, input.limit)
+        .map((record) => workspaceSummarySchema.parse(record));
+      const last = items.at(-1);
+      return {
+        items,
+        nextCursor:
+          records.length > input.limit && last ? { createdAt: last.createdAt, id: last.id } : null,
+      };
+    });
+  }
 }
