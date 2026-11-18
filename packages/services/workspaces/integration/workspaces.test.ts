@@ -170,3 +170,18 @@ test("deny writes after a workspace is deleted", async () => {
     "NOT_FOUND",
   );
 });
+
+test("observe membership revocation on the next request", async () => {
+  const f = getFixture();
+  const created = await f.createWorkspace();
+  await f.pool.query(
+    "INSERT INTO builder.workspace_memberships (workspace_id,user_id,role) VALUES ($1,$2,'ADMIN')",
+    [created.id, f.users.viewer],
+  );
+  assert.equal((await f.service.get(f.users.viewer, created.id)).role, "ADMIN");
+  await f.pool.query(
+    "DELETE FROM builder.workspace_memberships WHERE workspace_id=$1 AND user_id=$2",
+    [created.id, f.users.viewer],
+  );
+  await accessFailure(() => f.service.get(f.users.viewer, created.id), "NOT_FOUND");
+});
