@@ -138,3 +138,8 @@ test("hide workspace existence from unauthorized updates", async () => {
     "NOT_FOUND",
   );
 });
+
+test("report missing workspaces without exposing membership state", async () => {
+  const f = getFixture();
+  await accessFailure(() => f.service.get(f.users.owner, randomUUID()), "NOT_FOUND");
+});
