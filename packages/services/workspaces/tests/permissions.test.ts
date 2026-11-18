@@ -69,3 +69,7 @@ test("admin can responses export", () => {
 test("editor can workspace read", () => {
   assert.equal(hasWorkspaceCapability("EDITOR", "workspace:read"), true);
 });
+
+test("editor cannot workspace update", () => {
+  assert.equal(hasWorkspaceCapability("EDITOR", "workspace:update"), false);
+});
