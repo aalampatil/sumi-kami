@@ -140,3 +140,7 @@ test("settings reject unbounded retention", () => {
     false,
   );
 });
+
+test("settings reject stringly typed retention", () => {
+  assert.equal(updateWorkspaceSchema.safeParse({ ...update, retentionDays: "30" }).success, false);
+});
