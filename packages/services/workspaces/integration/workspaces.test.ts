@@ -155,3 +155,18 @@ test("hide deleted workspaces from discovery", async () => {
     ),
   );
 });
+
+test("deny writes after a workspace is deleted", async () => {
+  const f = getFixture();
+  const created = await f.createWorkspace();
+  await f.pool.query("UPDATE builder.workspaces SET deleted_at=now() WHERE id=$1", [created.id]);
+  await accessFailure(
+    () =>
+      f.service.update(f.users.owner, {
+        workspaceId: created.id,
+        name: "Deleted",
+        retentionDays: null,
+      }),
+    "NOT_FOUND",
+  );
+});
