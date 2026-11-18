@@ -25,3 +25,7 @@ test("owner can forms edit", () => {
 test("owner can forms publish", () => {
   assert.equal(hasWorkspaceCapability("OWNER", "forms:publish"), true);
 });
+
+test("owner can responses read", () => {
+  assert.equal(hasWorkspaceCapability("OWNER", "responses:read"), true);
+});
