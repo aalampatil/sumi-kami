@@ -107,3 +107,10 @@ test("settings reject removing memberships through settings", () => {
 test("settings reject forging the settings audit actor", () => {
   assert.equal(updateWorkspaceSchema.safeParse({ ...update, actorUserId: id }).success, false);
 });
+
+test("settings reject rewriting workspace history", () => {
+  assert.equal(
+    updateWorkspaceSchema.safeParse({ ...update, createdAt: "2020-01-01T00:00:00Z" }).success,
+    false,
+  );
+});
