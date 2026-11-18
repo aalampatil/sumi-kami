@@ -53,3 +53,7 @@ test("admin can forms read", () => {
 test("admin can forms edit", () => {
   assert.equal(hasWorkspaceCapability("ADMIN", "forms:edit"), true);
 });
+
+test("admin can forms publish", () => {
+  assert.equal(hasWorkspaceCapability("ADMIN", "forms:publish"), true);
+});
