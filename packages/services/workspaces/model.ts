@@ -52,3 +52,9 @@ export const workspaceSummarySchema = z.strictObject({
   createdAt: z.iso.datetime({ offset: true }),
 });
 export type WorkspaceSummary = z.infer<typeof workspaceSummarySchema>;
+
+export const workspacePageSchema = z.strictObject({
+  items: z.array(workspaceSummarySchema),
+  nextCursor: workspaceCursorSchema.nullable(),
+});
+export type WorkspacePage = z.infer<typeof workspacePageSchema>;
