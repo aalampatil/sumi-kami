@@ -133,3 +133,10 @@ test("settings reject negative retention", () => {
 test("settings reject fractional retention", () => {
   assert.equal(updateWorkspaceSchema.safeParse({ ...update, retentionDays: 1.5 }).success, false);
 });
+
+test("settings reject unbounded retention", () => {
+  assert.equal(
+    updateWorkspaceSchema.safeParse({ ...update, retentionDays: 100000 }).success,
+    false,
+  );
+});
