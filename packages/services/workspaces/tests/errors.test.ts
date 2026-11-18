@@ -6,3 +6,8 @@ test("unwrap the original constraint from a Drizzle failure", () => {
   const original = { code: "23505", constraint: "workspaces_slug_unique" };
   assert.equal(postgresError(new Error("query failed", { cause: original })), original);
 });
+
+test("preserve errors through multiple wrapper layers", () => {
+  const original = { code: "23503", constraint: "workspace_owner_fk" };
+  assert.equal(postgresError({ cause: { cause: original } }), original);
+});
