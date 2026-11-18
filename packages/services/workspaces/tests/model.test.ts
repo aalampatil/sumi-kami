@@ -178,3 +178,7 @@ test("addresses cannot contain paths, uppercase aliases, or repeated separators"
   ])
     assert.equal(createWorkspaceSchema.safeParse({ ...create, slug }).success, false, slug);
 });
+
+test("detail lookup accepts only a workspace identifier", () => {
+  assert.equal(workspaceIdSchema.safeParse({ workspaceId: id, actorUserId: id }).success, false);
+});
