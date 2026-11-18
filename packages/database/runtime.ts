@@ -7,7 +7,9 @@ let pool: Pool | undefined;
 export function getTenantDatabase(): ReturnType<typeof drizzle> {
   if (!runtime) {
     pool = new Pool({
-      connectionString: tenantConnectionString(process.env),
+      connectionString: tenantConnectionString({
+        TENANT_DATABASE_URL: process.env.TENANT_DATABASE_URL,
+      }),
       max: 10,
       connectionTimeoutMillis: 5000,
       idleTimeoutMillis: 30000,
