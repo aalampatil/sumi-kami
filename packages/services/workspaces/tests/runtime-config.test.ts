@@ -38,3 +38,8 @@ test("require an explicit target database", () => {
     /database/,
   );
 });
+
+test("preserve encoded credentials without accidental interpolation", () => {
+  const value = "postgresql://runtime:p%24%24%40word@127.0.0.1:55433/workspace_dev?sslmode=disable";
+  assert.equal(tenantConnectionString({ TENANT_DATABASE_URL: value }), value);
+});
