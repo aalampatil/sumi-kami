@@ -48,3 +48,8 @@ test("accept the supported postgres scheme", () => {
   const value = "postgres://runtime:secret@localhost/workspace_dev";
   assert.equal(tenantConnectionString({ TENANT_DATABASE_URL: value }), value);
 });
+
+test("trim accidental surrounding URL whitespace", () => {
+  const value = "postgresql://runtime:secret@localhost/workspace_dev";
+  assert.equal(tenantConnectionString({ TENANT_DATABASE_URL: "  " + value + "  " }), value);
+});
