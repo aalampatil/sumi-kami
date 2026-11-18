@@ -231,3 +231,11 @@ test("serialize concurrent address claims without duplicate workspaces", async (
     "1",
   );
 });
+
+test("keep workspace discovery from reading form definitions", async () => {
+  const f = getFixture();
+  await withWorkspaceDiscovery(f.database, f.users.owner, async (transaction) => {
+    const result = await transaction.execute(sql`SELECT * FROM builder.forms`);
+    assert.equal(result.rows.length, 0);
+  });
+});
