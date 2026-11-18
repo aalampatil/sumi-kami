@@ -21,3 +21,7 @@ test("collapse repeated separator characters", () => {
 test("leave non-Latin names ready for an explicit address", () => {
   assert.equal(suggestWorkspaceSlug("墨と紙"), "");
 });
+
+test("preserve numeric workspace names", () => {
+  assert.equal(suggestWorkspaceSlug("Studio 2026"), "studio-2026");
+});
