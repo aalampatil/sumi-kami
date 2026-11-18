@@ -80,3 +80,15 @@ test("grant owner authority despite a lower membership role", async () => {
     retentionDays: null,
   });
 });
+
+test("permit admins to update workspace settings", async () => {
+  const f = getFixture();
+  const updated = await f.service.update(f.users.admin, {
+    workspaceId: f.workspace.id,
+    name: "Admin-managed workspace",
+    retentionDays: 30,
+  });
+  assert.equal(updated.name, "Admin-managed workspace");
+  assert.equal(updated.retentionDays, 30);
+  assert.equal(updated.role, "ADMIN");
+});
