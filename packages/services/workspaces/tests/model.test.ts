@@ -148,3 +148,8 @@ test("settings reject stringly typed retention", () => {
 test("an explicit null removes retention without inventing a zero-day policy", () => {
   assert.equal(updateWorkspaceSchema.parse(update).retentionDays, null);
 });
+
+test("whitespace-only names never reach persistence", () => {
+  assert.equal(createWorkspaceSchema.safeParse({ ...create, name: " \t\n " }).success, false);
+  assert.equal(updateWorkspaceSchema.safeParse({ ...update, name: " " }).success, false);
+});
