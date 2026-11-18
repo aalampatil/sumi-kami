@@ -13,3 +13,7 @@ test("owner can workspace update", () => {
 test("owner can members manage", () => {
   assert.equal(hasWorkspaceCapability("OWNER", "members:manage"), true);
 });
+
+test("owner can forms read", () => {
+  assert.equal(hasWorkspaceCapability("OWNER", "forms:read"), true);
+});
