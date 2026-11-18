@@ -24,3 +24,10 @@ test("reject HTTP URLs as database credentials", () => {
     /PostgreSQL/,
   );
 });
+
+test("require a named runtime login", () => {
+  assert.throws(
+    () => tenantConnectionString({ TENANT_DATABASE_URL: "postgresql://localhost/workspace_dev" }),
+    /login/,
+  );
+});
