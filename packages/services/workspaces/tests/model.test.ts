@@ -271,3 +271,7 @@ test("discovery rejects unparsed string page requests", () => {
 test("summary contracts reject internal owner attribution", () => {
   assert.equal(workspaceSummarySchema.safeParse({ ...summary, ownerUserId: id }).success, false);
 });
+
+test("summary contracts reject raw membership records", () => {
+  assert.equal(workspaceSummarySchema.safeParse({ ...summary, memberships: [] }).success, false);
+});
