@@ -107,3 +107,21 @@ test("reject editor settings writes while preserving data", async () => {
   );
   assert.equal((await f.service.get(f.users.editor, f.workspace.id)).name, before.name);
 });
+
+test("reject viewer settings writes while preserving retention", async () => {
+  const f = getFixture();
+  const before = await f.service.get(f.users.viewer, f.workspace.id);
+  await accessFailure(
+    () =>
+      f.service.update(f.users.viewer, {
+        workspaceId: f.workspace.id,
+        name: "Forbidden viewer update",
+        retentionDays: 1,
+      }),
+    "FORBIDDEN",
+  );
+  assert.equal(
+    (await f.service.get(f.users.viewer, f.workspace.id)).retentionDays,
+    before.retentionDays,
+  );
+});
