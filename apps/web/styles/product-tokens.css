@@ -1,0 +1,21 @@
+/* Product chrome only. Published forms will use their own versioned appearance. */
+:root {
+  --background: #f5f0e6;
+  --foreground: #171714;
+  --card: #fcfaf6;
+  --card-foreground: #171714;
+  --popover: #fcfaf6;
+  --popover-foreground: #171714;
+  --primary: #171714;
+  --primary-foreground: #fcfaf6;
+  --secondary: #e9e3d8;
+  --secondary-foreground: #171714;
+  --muted: #e9e3d8;
+  --muted-foreground: #68645d;
+  --accent: #e9e3d8;
+  --accent-foreground: #171714;
+  --border: #d8d0c3;
+  --input: #827a6e;
+  --ring: #9f382c;
+  --destructive: #a12c32;
+}
