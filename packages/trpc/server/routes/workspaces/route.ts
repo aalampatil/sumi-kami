@@ -16,4 +16,11 @@ export const workspacesRouter = router({
     .input(listWorkspacesSchema)
     .output(workspacePageSchema)
     .query(({ ctx, input }) => workspaceOperation(() => workspaceService.list(ctx.user.id, input))),
+  create: protectedProcedure
+    .meta({ openapi: { method: "POST", path: "/workspaces", tags: ["Workspaces"], protect: true } })
+    .input(createWorkspaceSchema)
+    .output(workspaceSummarySchema)
+    .mutation(({ ctx, input }) =>
+      workspaceOperation(() => workspaceService.create(ctx.user.id, input)),
+    ),
 });
