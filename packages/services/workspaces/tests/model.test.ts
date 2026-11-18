@@ -240,3 +240,10 @@ test("cursor identifiers are validated before interpolation into SQL", () => {
     false,
   );
 });
+
+test("the REST-compatible pagination contract rejects nested query objects", () => {
+  assert.equal(
+    listWorkspacesSchema.safeParse({ cursor: { createdAt: summary.createdAt, id } }).success,
+    false,
+  );
+});
