@@ -215,3 +215,19 @@ test("translate duplicate addresses into a stable conflict", async () => {
     "SLUG_TAKEN",
   );
 });
+
+test("serialize concurrent address claims without duplicate workspaces", async () => {
+  const f = getFixture();
+  const slug = "claim-" + randomUUID();
+  const results = await Promise.allSettled([
+    f.service.create(f.users.owner, { name: "Claim A", slug }),
+    f.service.create(f.users.stranger, { name: "Claim B", slug }),
+  ]);
+  assert.equal(results.filter((result) => result.status === "fulfilled").length, 1);
+  assert.equal(results.filter((result) => result.status === "rejected").length, 1);
+  assert.equal(
+    (await f.pool.query("SELECT count(*) FROM builder.workspaces WHERE slug=$1", [slug])).rows[0]
+      .count,
+    "1",
+  );
+});
