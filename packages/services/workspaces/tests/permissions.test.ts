@@ -93,3 +93,7 @@ test("editor can forms publish", () => {
 test("editor can responses read", () => {
   assert.equal(hasWorkspaceCapability("EDITOR", "responses:read"), true);
 });
+
+test("editor can responses export", () => {
+  assert.equal(hasWorkspaceCapability("EDITOR", "responses:export"), true);
+});
