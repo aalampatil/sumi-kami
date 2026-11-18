@@ -125,3 +125,7 @@ test("settings reject implicitly clearing retention", () => {
 test("settings reject zero-day retention", () => {
   assert.equal(updateWorkspaceSchema.safeParse({ ...update, retentionDays: 0 }).success, false);
 });
+
+test("settings reject negative retention", () => {
+  assert.equal(updateWorkspaceSchema.safeParse({ ...update, retentionDays: -1 }).success, false);
+});
