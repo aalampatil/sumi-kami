@@ -103,3 +103,7 @@ test("settings reject undeleting a workspace", () => {
 test("settings reject removing memberships through settings", () => {
   assert.equal(updateWorkspaceSchema.safeParse({ ...update, memberships: [] }).success, false);
 });
+
+test("settings reject forging the settings audit actor", () => {
+  assert.equal(updateWorkspaceSchema.safeParse({ ...update, actorUserId: id }).success, false);
+});
