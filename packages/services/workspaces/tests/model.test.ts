@@ -204,3 +204,7 @@ test("omitting pagination chooses a bounded first page", () => {
 test("discovery rejects a caller-supplied actor", () => {
   assert.equal(listWorkspacesSchema.safeParse({ actorUserId: id }).success, false);
 });
+
+test("discovery cannot be redirected with an unchecked tenant filter", () => {
+  assert.equal(listWorkspacesSchema.safeParse({ workspaceId: id }).success, false);
+});
