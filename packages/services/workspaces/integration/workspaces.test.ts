@@ -259,3 +259,19 @@ test("limit discovery membership reads to the authenticated actor", async () => 
     assert.ok(result.rows.every((row) => row.user_id === f.users.viewer));
   });
 });
+
+test("keep actor discovery policies disabled inside tenant transactions", async () => {
+  const f = getFixture();
+  await withAuthorizedWorkspace(
+    f.database,
+    f.workspace.id,
+    async (transaction) => {
+      const result = await transaction.execute(sql`SELECT id FROM builder.workspaces`);
+      assert.deepEqual(
+        result.rows.map((row) => row.id),
+        [f.workspace.id],
+      );
+    },
+    f.users.stranger,
+  );
+});
