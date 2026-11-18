@@ -117,3 +117,7 @@ test("viewer can forms read", () => {
 test("viewer cannot forms edit", () => {
   assert.equal(hasWorkspaceCapability("VIEWER", "forms:edit"), false);
 });
+
+test("viewer cannot forms publish", () => {
+  assert.equal(hasWorkspaceCapability("VIEWER", "forms:publish"), false);
+});
