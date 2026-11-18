@@ -267,3 +267,7 @@ test("discovery rejects fractional page requests", () => {
 test("discovery rejects unparsed string page requests", () => {
   assert.equal(listWorkspacesSchema.safeParse({ limit: "20" }).success, false);
 });
+
+test("summary contracts reject internal owner attribution", () => {
+  assert.equal(workspaceSummarySchema.safeParse({ ...summary, ownerUserId: id }).success, false);
+});
