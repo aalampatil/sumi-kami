@@ -239,3 +239,12 @@ test("keep workspace discovery from reading form definitions", async () => {
     assert.equal(result.rows.length, 0);
   });
 });
+
+test("hide workspace rows when neither context is present", async () => {
+  const f = getFixture();
+  assert.equal((await f.runtimePool.query("SELECT id FROM builder.workspaces")).rows.length, 0);
+  assert.equal(
+    (await f.runtimePool.query("SELECT id FROM builder.workspace_memberships")).rows.length,
+    0,
+  );
+});
