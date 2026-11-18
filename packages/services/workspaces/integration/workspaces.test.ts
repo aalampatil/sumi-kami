@@ -365,3 +365,13 @@ test("return a null continuation when a page exactly fills the limit", async () 
   const exact = await f.service.list(f.users.stranger, { limit: result.items.length });
   assert.equal(exact.nextCursor, null);
 });
+
+test("return an empty page for a valid cursor past all records", async () => {
+  const f = getFixture();
+  const result = await f.service.list(f.users.owner, {
+    limit: 20,
+    cursorCreatedAt: "1900-01-01T00:00:00Z",
+    cursorId: randomUUID(),
+  });
+  assert.deepEqual(result, { items: [], nextCursor: null });
+});
