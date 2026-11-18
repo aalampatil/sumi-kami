@@ -78,6 +78,13 @@
       "when": 1794041613268,
       "tag": "0010_clerk_identity_mapping",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1794960000000,
+      "tag": "0011_workspace_discovery",
+      "breakpoints": true
     }
   ]
 }
