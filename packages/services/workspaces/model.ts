@@ -16,3 +16,9 @@ export const workspaceSlugSchema = z
   .regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, "Use lowercase letters, numbers, and single hyphens.");
 
 export const workspaceRetentionSchema = z.number().int().min(1).max(99999).nullable();
+
+export const createWorkspaceSchema = z.strictObject({
+  name: workspaceNameSchema,
+  slug: workspaceSlugSchema,
+});
+export type CreateWorkspaceInput = z.infer<typeof createWorkspaceSchema>;
