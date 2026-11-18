@@ -255,3 +255,7 @@ test("discovery rejects empty page requests", () => {
 test("discovery rejects negative page requests", () => {
   assert.equal(listWorkspacesSchema.safeParse({ limit: -1 }).success, false);
 });
+
+test("discovery rejects oversized page requests", () => {
+  assert.equal(listWorkspacesSchema.safeParse({ limit: 51 }).success, false);
+});
