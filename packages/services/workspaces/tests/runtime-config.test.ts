@@ -31,3 +31,10 @@ test("require a named runtime login", () => {
     /login/,
   );
 });
+
+test("require an explicit target database", () => {
+  assert.throws(
+    () => tenantConnectionString({ TENANT_DATABASE_URL: "postgresql://runtime:secret@localhost/" }),
+    /database/,
+  );
+});
