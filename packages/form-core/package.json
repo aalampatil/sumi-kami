@@ -1,0 +1,23 @@
+{
+  "name": "@repo/form-core",
+  "version": "1.0.0",
+  "private": true,
+  "exports": {
+    "./definition": "./definition.ts",
+    "./answers": "./answers.ts",
+    "./appearance": "./appearance.ts"
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit",
+    "test": "tsx --test tests/*.test.ts"
+  },
+  "dependencies": {
+    "zod": "4.3.5"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "22.15.3",
+    "tsx": "4.21.0",
+    "typescript": "5.9.3"
+  }
+}

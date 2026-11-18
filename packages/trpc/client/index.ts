@@ -8,3 +8,9 @@ export type RouterInputs = inferRouterInputs<ServerRouter>;
 export type { ServerRouter } from "../server";
 
 export type { WorkspaceSummary, WorkspacePage } from "@repo/services/workspaces/model";
+export type {
+  FormEditor,
+  FormListItem,
+  PublishedForm,
+  ResponseItem,
+} from "@repo/services/forms/model";

@@ -11,7 +11,9 @@ export interface Context {
   user: UserPublic | null;
 }
 
-export async function createContext(opts: CreateExpressContextOptions): Promise<Context> {
+export async function createContext(
+  opts: Pick<CreateExpressContextOptions, "req" | "res">,
+): Promise<Context> {
   const authentication = getAuth(opts.req);
   let user: UserPublic | null = null;
   if (authentication.isAuthenticated && authentication.userId) {

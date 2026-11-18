@@ -6,6 +6,11 @@ export function enforceRateLimit(params: { key: string; limit: number; windowMs:
   const now = Date.now();
   const existing = buckets.get(params.key);
 
+  if (!existing && buckets.size >= 10000) {
+    for (const [key, bucket] of buckets) if (bucket.resetAt <= now) buckets.delete(key);
+    if (buckets.size >= 10000) return { ok: false as const, retryAfterMs: params.windowMs };
+  }
+
   if (!existing || existing.resetAt <= now) {
     buckets.set(params.key, { count: 1, resetAt: now + params.windowMs });
     return { ok: true as const, remaining: params.limit - 1 };
@@ -19,4 +24,3 @@ export function enforceRateLimit(params: { key: string; limit: number; windowMs:
   buckets.set(params.key, existing);
   return { ok: true as const, remaining: params.limit - existing.count };
 }
-

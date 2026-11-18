@@ -85,6 +85,20 @@
       "when": 1794960000000,
       "tag": "0011_workspace_discovery",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1795029331133,
+      "tag": "0012_public_form_lookup",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1795033564175,
+      "tag": "0013_workspace_invitations",
+      "breakpoints": true
     }
   ]
 }

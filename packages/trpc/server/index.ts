@@ -1,22 +1,18 @@
 import { workspacesRouter } from "./routes/workspaces/route";
 import { router } from "./trpc";
-import { publicProcedure } from "./trpc";
-import { z } from "zod";
+import { formsRouter } from "./routes/forms/route";
 import { healthRouter } from "./routes/health/route";
 import { authRouter } from "./routes/auth/route";
 import { publicRouter } from "./routes/public/route";
+import { membersRouter } from "./routes/members/route";
 
 export const serverRouter = router({
   health: healthRouter,
   workspaces: workspacesRouter,
+  forms: formsRouter,
   auth: authRouter,
   public: publicRouter,
-  test: publicProcedure
-    .input(z.object({ email: z.email() }))
-    .output(z.object({ message: z.string() }))
-    .query(async ({ input }) => {
-      return { message: `hello ${input.email}` };
-    }),
+  members: membersRouter,
 });
 
 export { createContext } from "./context";
