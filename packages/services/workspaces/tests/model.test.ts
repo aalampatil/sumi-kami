@@ -153,3 +153,14 @@ test("whitespace-only names never reach persistence", () => {
   assert.equal(createWorkspaceSchema.safeParse({ ...create, name: " \t\n " }).success, false);
   assert.equal(updateWorkspaceSchema.safeParse({ ...update, name: " " }).success, false);
 });
+
+test("oversized creator labels are rejected before database writes", () => {
+  assert.equal(
+    createWorkspaceSchema.safeParse({ ...create, name: "a".repeat(161) }).success,
+    false,
+  );
+  assert.equal(
+    updateWorkspaceSchema.safeParse({ ...update, name: "a".repeat(161) }).success,
+    false,
+  );
+});
