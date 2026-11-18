@@ -125,3 +125,16 @@ test("reject viewer settings writes while preserving retention", async () => {
     before.retentionDays,
   );
 });
+
+test("hide workspace existence from unauthorized updates", async () => {
+  const f = getFixture();
+  await accessFailure(
+    () =>
+      f.service.update(f.users.stranger, {
+        workspaceId: f.workspace.id,
+        name: "Unauthorized",
+        retentionDays: null,
+      }),
+    "NOT_FOUND",
+  );
+});
