@@ -42,3 +42,13 @@ export const listWorkspacesSchema = z.strictObject({
   cursor: workspaceCursorSchema.optional(),
 });
 export type ListWorkspacesInput = z.infer<typeof listWorkspacesSchema>;
+
+export const workspaceSummarySchema = z.strictObject({
+  id: z.uuid(),
+  name: workspaceNameSchema,
+  slug: workspaceSlugSchema,
+  role: workspaceRoleSchema,
+  retentionDays: workspaceRetentionSchema,
+  createdAt: z.iso.datetime({ offset: true }),
+});
+export type WorkspaceSummary = z.infer<typeof workspaceSummarySchema>;
