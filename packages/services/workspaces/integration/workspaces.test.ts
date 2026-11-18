@@ -358,3 +358,10 @@ test("paginate identical timestamps without duplicates or omissions", async () =
   assert.deepEqual(new Set(found), new Set(created));
   assert.equal(found.length, 5);
 });
+
+test("return a null continuation when a page exactly fills the limit", async () => {
+  const f = getFixture();
+  const result = await f.service.list(f.users.stranger, { limit: 50 });
+  const exact = await f.service.list(f.users.stranger, { limit: result.items.length });
+  assert.equal(exact.nextCursor, null);
+});
