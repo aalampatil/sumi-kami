@@ -207,3 +207,11 @@ test("observe downgraded workspace roles on the next write", async () => {
     "FORBIDDEN",
   );
 });
+
+test("translate duplicate addresses into a stable conflict", async () => {
+  const f = getFixture();
+  await accessFailure(
+    () => f.service.create(f.users.stranger, { name: "Duplicate address", slug: f.workspace.slug }),
+    "SLUG_TAKEN",
+  );
+});
