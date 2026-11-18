@@ -9,3 +9,10 @@ test("require an explicit tenant credential", () => {
 test("reject whitespace-only tenant credentials", () => {
   assert.throws(() => tenantConnectionString({ TENANT_DATABASE_URL: "  " }), /restricted/);
 });
+
+test("reject non-URL tenant settings", () => {
+  assert.throws(
+    () => tenantConnectionString({ TENANT_DATABASE_URL: "not a database URL" }),
+    /PostgreSQL URL/,
+  );
+});
