@@ -200,3 +200,7 @@ test("settings do not accept SQL-like workspace identifiers", () => {
 test("omitting pagination chooses a bounded first page", () => {
   assert.deepEqual(listWorkspacesSchema.parse({}), { limit: 20 });
 });
+
+test("discovery rejects a caller-supplied actor", () => {
+  assert.equal(listWorkspacesSchema.safeParse({ actorUserId: id }).success, false);
+});
