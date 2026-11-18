@@ -164,3 +164,17 @@ test("oversized creator labels are rejected before database writes", () => {
     false,
   );
 });
+
+test("addresses cannot contain paths, uppercase aliases, or repeated separators", () => {
+  for (const slug of [
+    "../other",
+    "Design-Studio",
+    "-design",
+    "design-",
+    "design--studio",
+    "design_studio",
+    "design studio",
+    "",
+  ])
+    assert.equal(createWorkspaceSchema.safeParse({ ...create, slug }).success, false, slug);
+});
