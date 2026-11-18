@@ -248,3 +248,14 @@ test("hide workspace rows when neither context is present", async () => {
     0,
   );
 });
+
+test("limit discovery membership reads to the authenticated actor", async () => {
+  const f = getFixture();
+  await withWorkspaceDiscovery(f.database, f.users.viewer, async (transaction) => {
+    const result = await transaction.execute(
+      sql`SELECT user_id FROM builder.workspace_memberships`,
+    );
+    assert.ok(result.rows.length);
+    assert.ok(result.rows.every((row) => row.user_id === f.users.viewer));
+  });
+});
