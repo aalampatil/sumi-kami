@@ -59,3 +59,9 @@ test("hide other workspaces from an unrelated owner", async () => {
   const f = getFixture();
   await accessFailure(() => f.service.get(f.users.owner, f.otherWorkspace.id), "NOT_FOUND");
 });
+
+test("prevent global platform admins from bypassing workspace membership", async () => {
+  const f = getFixture();
+  assert.deepEqual((await f.service.list(f.users.platformAdmin, { limit: 50 })).items, []);
+  await accessFailure(() => f.service.get(f.users.platformAdmin, f.workspace.id), "NOT_FOUND");
+});
