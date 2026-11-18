@@ -310,3 +310,19 @@ test("deny runtime audit-history rewrites", async () => {
     (error) => (error as { code?: string }).code === "42501",
   );
 });
+
+test("clear retention only through an explicit settings update", async () => {
+  const f = getFixture();
+  const created = await f.createWorkspace();
+  await f.service.update(f.users.owner, {
+    workspaceId: created.id,
+    name: created.name,
+    retentionDays: 7,
+  });
+  const updated = await f.service.update(f.users.owner, {
+    workspaceId: created.id,
+    name: created.name,
+    retentionDays: null,
+  });
+  assert.equal(updated.retentionDays, null);
+});
