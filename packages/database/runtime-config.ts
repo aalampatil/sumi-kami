@@ -1,6 +1,4 @@
-export function tenantConnectionString(
-  environment: Pick<NodeJS.ProcessEnv, "TENANT_DATABASE_URL">,
-): string {
+export function tenantConnectionString(environment: { TENANT_DATABASE_URL?: string }): string {
   const value = environment.TENANT_DATABASE_URL?.trim();
   if (!value) throw new Error("Set TENANT_DATABASE_URL to a restricted builder_runtime login.");
   let parsed: URL;
