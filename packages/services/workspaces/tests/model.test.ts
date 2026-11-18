@@ -251,3 +251,7 @@ test("the REST-compatible pagination contract rejects nested query objects", () 
 test("discovery rejects empty page requests", () => {
   assert.equal(listWorkspacesSchema.safeParse({ limit: 0 }).success, false);
 });
+
+test("discovery rejects negative page requests", () => {
+  assert.equal(listWorkspacesSchema.safeParse({ limit: -1 }).success, false);
+});
