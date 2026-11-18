@@ -81,3 +81,7 @@ test("editor cannot members manage", () => {
 test("editor can forms read", () => {
   assert.equal(hasWorkspaceCapability("EDITOR", "forms:read"), true);
 });
+
+test("editor can forms edit", () => {
+  assert.equal(hasWorkspaceCapability("EDITOR", "forms:edit"), true);
+});
