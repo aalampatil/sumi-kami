@@ -26,3 +26,7 @@ test("ignore non-object rejection reasons", () => {
   for (const error of [null, undefined, "failure", 123, true])
     assert.equal(postgresError(error), undefined);
 });
+
+test("ignore non-string database error codes", () => {
+  assert.equal(postgresError({ code: 23505 }), undefined);
+});
