@@ -88,4 +88,22 @@ export class WorkspaceService {
   async get(actorUserId: string, workspaceId: string): Promise<WorkspaceSummary> {
     return discoverWorkspace(this.database(), actorUserId, workspaceId);
   }
+  async update(actorUserId: string, request: UpdateWorkspaceInput): Promise<WorkspaceSummary> {
+    const input = updateWorkspaceSchema.parse(request);
+    return withWorkspaceAccess(
+      this.database(),
+      actorUserId,
+      input.workspaceId,
+      "workspace:update",
+      async (transaction, role) => {
+        const [workspace] = await transaction
+          .update(workspacesTable)
+          .set({ name: input.name, retentionDays: input.retentionDays })
+          .where(eq(workspacesTable.id, input.workspaceId))
+          .returning(workspaceColumns);
+        return workspaceSummarySchema.parse({ ...workspace, role });
+      },
+      "update",
+    );
+  }
 }
