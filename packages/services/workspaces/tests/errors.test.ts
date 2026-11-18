@@ -11,3 +11,9 @@ test("preserve errors through multiple wrapper layers", () => {
   const original = { code: "23503", constraint: "workspace_owner_fk" };
   assert.equal(postgresError({ cause: { cause: original } }), original);
 });
+
+test("terminate safely on circular error causes", () => {
+  const error: { cause?: unknown } = {};
+  error.cause = error;
+  assert.equal(postgresError(error), undefined);
+});
