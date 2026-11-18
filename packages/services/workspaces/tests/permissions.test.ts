@@ -37,3 +37,7 @@ test("owner can responses export", () => {
 test("admin can workspace read", () => {
   assert.equal(hasWorkspaceCapability("ADMIN", "workspace:read"), true);
 });
+
+test("admin can workspace update", () => {
+  assert.equal(hasWorkspaceCapability("ADMIN", "workspace:update"), true);
+});
