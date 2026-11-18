@@ -17,3 +17,7 @@ test("remove unsafe path punctuation", () => {
 test("collapse repeated separator characters", () => {
   assert.equal(suggestWorkspaceSlug("Design  --  Studio"), "design-studio");
 });
+
+test("leave non-Latin names ready for an explicit address", () => {
+  assert.equal(suggestWorkspaceSlug("墨と紙"), "");
+});
