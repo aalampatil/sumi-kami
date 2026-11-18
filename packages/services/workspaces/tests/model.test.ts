@@ -1,0 +1,285 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+import {
+  createWorkspaceSchema,
+  updateWorkspaceSchema,
+  workspaceIdSchema,
+  listWorkspacesSchema,
+  workspaceSummarySchema,
+} from "../model";
+const id = "6ac1ed7e-bda0-4bd5-8e53-37610e610bcc";
+const create = { name: "Design studio", slug: "design-studio" };
+const update = { workspaceId: id, name: "Design studio", retentionDays: null };
+const summary = {
+  id,
+  ...create,
+  role: "OWNER",
+  retentionDays: null,
+  createdAt: "2026-11-18T12:00:00.123456Z",
+};
+
+test("workspace creation trims display names without changing the chosen address", () => {
+  assert.deepEqual(createWorkspaceSchema.parse({ ...create, name: "  墨 Design studio  " }), {
+    ...create,
+    name: "墨 Design studio",
+  });
+});
+
+test("creation rejects impersonating another owner", () => {
+  assert.equal(createWorkspaceSchema.safeParse({ ...create, ownerUserId: id }).success, false);
+});
+
+test("creation rejects choosing the server-owned workspace identifier", () => {
+  assert.equal(createWorkspaceSchema.safeParse({ ...create, id: id }).success, false);
+});
+
+test("creation rejects assigning an elevated workspace role", () => {
+  assert.equal(createWorkspaceSchema.safeParse({ ...create, role: "ADMIN" }).success, false);
+});
+
+test("creation rejects injecting team memberships", () => {
+  assert.equal(
+    createWorkspaceSchema.safeParse({ ...create, memberships: [{ userId: id, role: "ADMIN" }] })
+      .success,
+    false,
+  );
+});
+
+test("creation rejects forging the audit actor", () => {
+  assert.equal(createWorkspaceSchema.safeParse({ ...create, actorUserId: id }).success, false);
+});
+
+test("creation rejects creating a predeleted workspace", () => {
+  assert.equal(
+    createWorkspaceSchema.safeParse({ ...create, deletedAt: "2026-11-18T12:00:00Z" }).success,
+    false,
+  );
+});
+
+test("creation rejects backdating workspace creation", () => {
+  assert.equal(
+    createWorkspaceSchema.safeParse({ ...create, createdAt: "2020-01-01T00:00:00Z" }).success,
+    false,
+  );
+});
+
+test("creation rejects overriding retention during creation", () => {
+  assert.equal(createWorkspaceSchema.safeParse({ ...create, retentionDays: 1 }).success, false);
+});
+
+test("creation rejects injecting unrelated form state", () => {
+  assert.equal(
+    createWorkspaceSchema.safeParse({ ...create, publishedVersionId: id }).success,
+    false,
+  );
+});
+
+test("serialized prototype fields cannot bypass strict creation input", () => {
+  const payload: unknown = JSON.parse(
+    JSON.stringify(create).slice(0, -1) + ',"__proto__":{"role":"OWNER"}}',
+  );
+  assert.equal(createWorkspaceSchema.safeParse(payload).success, false);
+});
+
+test("settings reject ownership transfer through settings", () => {
+  assert.equal(updateWorkspaceSchema.safeParse({ ...update, ownerUserId: id }).success, false);
+});
+
+test("settings reject changing stable workspace addresses", () => {
+  assert.equal(
+    updateWorkspaceSchema.safeParse({ ...update, slug: "other-address" }).success,
+    false,
+  );
+});
+
+test("settings reject promoting the current member", () => {
+  assert.equal(updateWorkspaceSchema.safeParse({ ...update, role: "OWNER" }).success, false);
+});
+
+test("settings reject undeleting a workspace", () => {
+  assert.equal(updateWorkspaceSchema.safeParse({ ...update, deletedAt: null }).success, false);
+});
+
+test("settings reject removing memberships through settings", () => {
+  assert.equal(updateWorkspaceSchema.safeParse({ ...update, memberships: [] }).success, false);
+});
+
+test("settings reject forging the settings audit actor", () => {
+  assert.equal(updateWorkspaceSchema.safeParse({ ...update, actorUserId: id }).success, false);
+});
+
+test("settings reject rewriting workspace history", () => {
+  assert.equal(
+    updateWorkspaceSchema.safeParse({ ...update, createdAt: "2020-01-01T00:00:00Z" }).success,
+    false,
+  );
+});
+
+test("settings reject implicitly clearing retention", () => {
+  assert.equal(
+    updateWorkspaceSchema.safeParse({ ...update, retentionDays: undefined }).success,
+    false,
+  );
+});
+
+test("settings reject zero-day retention", () => {
+  assert.equal(updateWorkspaceSchema.safeParse({ ...update, retentionDays: 0 }).success, false);
+});
+
+test("settings reject negative retention", () => {
+  assert.equal(updateWorkspaceSchema.safeParse({ ...update, retentionDays: -1 }).success, false);
+});
+
+test("settings reject fractional retention", () => {
+  assert.equal(updateWorkspaceSchema.safeParse({ ...update, retentionDays: 1.5 }).success, false);
+});
+
+test("settings reject unbounded retention", () => {
+  assert.equal(
+    updateWorkspaceSchema.safeParse({ ...update, retentionDays: 100000 }).success,
+    false,
+  );
+});
+
+test("settings reject stringly typed retention", () => {
+  assert.equal(updateWorkspaceSchema.safeParse({ ...update, retentionDays: "30" }).success, false);
+});
+
+test("an explicit null removes retention without inventing a zero-day policy", () => {
+  assert.equal(updateWorkspaceSchema.parse(update).retentionDays, null);
+});
+
+test("whitespace-only names never reach persistence", () => {
+  assert.equal(createWorkspaceSchema.safeParse({ ...create, name: " \t\n " }).success, false);
+  assert.equal(updateWorkspaceSchema.safeParse({ ...update, name: " " }).success, false);
+});
+
+test("oversized creator labels are rejected before database writes", () => {
+  assert.equal(
+    createWorkspaceSchema.safeParse({ ...create, name: "a".repeat(161) }).success,
+    false,
+  );
+  assert.equal(
+    updateWorkspaceSchema.safeParse({ ...update, name: "a".repeat(161) }).success,
+    false,
+  );
+});
+
+test("addresses cannot contain paths, uppercase aliases, or repeated separators", () => {
+  for (const slug of [
+    "../other",
+    "Design-Studio",
+    "-design",
+    "design-",
+    "design--studio",
+    "design_studio",
+    "design studio",
+    "",
+  ])
+    assert.equal(createWorkspaceSchema.safeParse({ ...create, slug }).success, false, slug);
+});
+
+test("detail lookup accepts only a workspace identifier", () => {
+  assert.equal(workspaceIdSchema.safeParse({ workspaceId: id, actorUserId: id }).success, false);
+});
+
+test("detail lookup cannot confuse workspace slugs with identifiers", () => {
+  assert.equal(workspaceIdSchema.safeParse({ workspaceId: create.slug }).success, false);
+});
+
+test("settings do not accept SQL-like workspace identifiers", () => {
+  assert.equal(
+    updateWorkspaceSchema.safeParse({
+      ...update,
+      workspaceId: '"; DROP TABLE builder.workspaces; --',
+    }).success,
+    false,
+  );
+});
+
+test("omitting pagination chooses a bounded first page", () => {
+  assert.deepEqual(listWorkspacesSchema.parse({}), { limit: 20 });
+});
+
+test("discovery rejects a caller-supplied actor", () => {
+  assert.equal(listWorkspacesSchema.safeParse({ actorUserId: id }).success, false);
+});
+
+test("discovery cannot be redirected with an unchecked tenant filter", () => {
+  assert.equal(listWorkspacesSchema.safeParse({ workspaceId: id }).success, false);
+});
+
+test("an identifier without a timestamp is rejected instead of restarting pagination", () => {
+  assert.equal(listWorkspacesSchema.safeParse({ cursorId: id }).success, false);
+});
+
+test("a timestamp without a tie-breaker cannot skip tied rows", () => {
+  assert.equal(
+    listWorkspacesSchema.safeParse({ cursorCreatedAt: summary.createdAt }).success,
+    false,
+  );
+});
+
+test("a returned microsecond timestamp can be submitted unchanged", () => {
+  const result = listWorkspacesSchema.parse({ cursorCreatedAt: summary.createdAt, cursorId: id });
+  assert.equal(result.cursorCreatedAt, summary.createdAt);
+});
+
+test("cursor timestamps require an explicit timezone", () => {
+  assert.equal(
+    listWorkspacesSchema.safeParse({ cursorCreatedAt: "2026-11-18T12:00:00", cursorId: id })
+      .success,
+    false,
+  );
+});
+
+test("cursor identifiers are validated before interpolation into SQL", () => {
+  assert.equal(
+    listWorkspacesSchema.safeParse({ cursorCreatedAt: summary.createdAt, cursorId: "not-a-uuid" })
+      .success,
+    false,
+  );
+});
+
+test("the REST-compatible pagination contract rejects nested query objects", () => {
+  assert.equal(
+    listWorkspacesSchema.safeParse({ cursor: { createdAt: summary.createdAt, id } }).success,
+    false,
+  );
+});
+
+test("discovery rejects empty page requests", () => {
+  assert.equal(listWorkspacesSchema.safeParse({ limit: 0 }).success, false);
+});
+
+test("discovery rejects negative page requests", () => {
+  assert.equal(listWorkspacesSchema.safeParse({ limit: -1 }).success, false);
+});
+
+test("discovery rejects oversized page requests", () => {
+  assert.equal(listWorkspacesSchema.safeParse({ limit: 51 }).success, false);
+});
+
+test("discovery rejects fractional page requests", () => {
+  assert.equal(listWorkspacesSchema.safeParse({ limit: 1.5 }).success, false);
+});
+
+test("discovery rejects unparsed string page requests", () => {
+  assert.equal(listWorkspacesSchema.safeParse({ limit: "20" }).success, false);
+});
+
+test("summary contracts reject internal owner attribution", () => {
+  assert.equal(workspaceSummarySchema.safeParse({ ...summary, ownerUserId: id }).success, false);
+});
+
+test("summary contracts reject raw membership records", () => {
+  assert.equal(workspaceSummarySchema.safeParse({ ...summary, memberships: [] }).success, false);
+});
+
+test("summary contracts reject internal deletion fields", () => {
+  assert.equal(workspaceSummarySchema.safeParse({ ...summary, deletedAt: null }).success, false);
+});
+
+test("a platform creator role cannot satisfy a workspace role contract", () => {
+  assert.equal(workspaceSummarySchema.safeParse({ ...summary, role: "CREATOR" }).success, false);
+});
