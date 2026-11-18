@@ -186,3 +186,13 @@ test("detail lookup accepts only a workspace identifier", () => {
 test("detail lookup cannot confuse workspace slugs with identifiers", () => {
   assert.equal(workspaceIdSchema.safeParse({ workspaceId: create.slug }).success, false);
 });
+
+test("settings do not accept SQL-like workspace identifiers", () => {
+  assert.equal(
+    updateWorkspaceSchema.safeParse({
+      ...update,
+      workspaceId: '"; DROP TABLE builder.workspaces; --',
+    }).success,
+    false,
+  );
+});
