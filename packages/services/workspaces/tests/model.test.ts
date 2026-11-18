@@ -32,3 +32,7 @@ test("creation rejects impersonating another owner", () => {
 test("creation rejects choosing the server-owned workspace identifier", () => {
   assert.equal(createWorkspaceSchema.safeParse({ ...create, id: id }).success, false);
 });
+
+test("creation rejects assigning an elevated workspace role", () => {
+  assert.equal(createWorkspaceSchema.safeParse({ ...create, role: "ADMIN" }).success, false);
+});
