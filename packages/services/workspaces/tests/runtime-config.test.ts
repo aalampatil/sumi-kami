@@ -43,3 +43,8 @@ test("preserve encoded credentials without accidental interpolation", () => {
   const value = "postgresql://runtime:p%24%24%40word@127.0.0.1:55433/workspace_dev?sslmode=disable";
   assert.equal(tenantConnectionString({ TENANT_DATABASE_URL: value }), value);
 });
+
+test("accept the supported postgres scheme", () => {
+  const value = "postgres://runtime:secret@localhost/workspace_dev";
+  assert.equal(tenantConnectionString({ TENANT_DATABASE_URL: value }), value);
+});
