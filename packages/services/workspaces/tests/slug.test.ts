@@ -9,3 +9,7 @@ test("convert human titles to readable addresses", () => {
 test("normalize accented Latin names", () => {
   assert.equal(suggestWorkspaceSlug("Café Étude"), "cafe-etude");
 });
+
+test("remove unsafe path punctuation", () => {
+  assert.equal(suggestWorkspaceSlug("../Design / Studio../"), "design-studio");
+});
