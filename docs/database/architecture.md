@@ -1,10 +1,10 @@
 # Sumikami database architecture
 
-Status: implemented for Phase 1 and updated for the approved Clerk development integration. The operations guide describes deployment boundaries; the history archive preserves the earlier design.
+Status: implemented for Phase 1, Clerk development identity mapping, and workspace directory access. The operations guide describes deployment boundaries; the history archive preserves the earlier design.
 
 ## Current schema and design history
 
-The schema is implemented through migration `0010_clerk_identity_mapping`. It contains **22 application tables**: 15 core tables in `builder` and 7 identity/compatibility tables in `public`. Clerk is an external authentication service, not another PostgreSQL table. Drizzle migration metadata is excluded from that count.
+The schema is implemented through migration `0011_workspace_discovery`, which adds directory policies without changing tables. It contains **22 application tables**: 15 core tables in `builder` and 7 identity/compatibility tables in `public`. Clerk is an external authentication service, not another PostgreSQL table. Drizzle migration metadata is excluded from that count.
 
 See the [old-to-current comparison](design-evolution.md), [original Phase 1 plan](history/phase-1-original-design.md), and [historical prototype ERD](history/prototype-0001.eraser) for how the plan changed. Historical inspection findings are preserved in that archive instead of being presented as current limitations.
 
@@ -85,7 +85,7 @@ Do not duplicate all answers into a JSON snapshot on every submission: the immut
 ## Tenant isolation and authorization boundary
 
 - Composite foreign keys reject cross-tenant inserts even when application code supplies valid UUIDs from another workspace. They do not authorize reads.
-- Enable and force workspace-scoped row-level security on new tenant tables. Runtime queries use a non-owner, non-superuser role without `BYPASSRLS`; absent transaction-local workspace context denies access. Keep migrations on a separate privileged connection.
+- Enable and force workspace-scoped row-level security on new tenant tables. Runtime queries use a non-owner, non-superuser role without `BYPASSRLS`. Absent context denies access; the narrow actor-only directory policies from `0011` permit only owned/joined workspace metadata and the actor's membership rows, and are disabled inside a workspace scope. Keep migrations on a separate privileged connection.
 - A small database transaction helper sets workspace context with parameterized `set_config(..., true)` on the same transaction connection. Workspace context is trusted input from authenticated authorization code, never directly from request payloads. Pool checkout must never retain session-level tenant context.
 - Ownership/membership checks grant owner/admin management access, editor form editing, and viewer read access. RLS supplies the tenant boundary; application permissions decide which operations each role may perform. The runtime database role must not be exposed to clients.
 - Future public endpoints resolve a public slug through narrowly scoped trusted code, check intake state, and open a workspace-scoped transaction. Knowing a workspace ID grants no application access. No anonymous database role receives broad table access.

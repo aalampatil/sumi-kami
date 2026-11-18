@@ -160,7 +160,7 @@ Aim for 44px touch targets for primary controls and icon-button hit areas. Dense
 
 The project already has Tailwind CSS, shadcn-style semantic variables, Radix-based components, locally loaded Geist fonts, and a `next-themes` dependency. Reuse those foundations. Define palette values centrally and let components consume semantic roles rather than scattering hex values through TSX.
 
-The root layout currently forces `.dark`, and its metadata still contains starter branding. Future implementation should replace the forced mode with deliberate system/light/dark behavior and update product metadata. Keep this guide's light palette as the design reference; honor the user's chosen mode when mode switching is implemented.
+The product now uses Sumikami metadata and a `next-themes` light/dark control, with central product colors in `apps/web/styles/product-tokens.css`. The Japanese Ink respondent preset remains a separate planned implementation. Keep this guide's light palette as that preset's design reference and preserve the separation between dashboard mode and published form appearance.
 
 Application theme and form appearance are separate settings: an author's dashboard mode should not silently rewrite a published form's appearance. The database's immutable `form_versions.settings` can hold a future validated appearance configuration when that feature is implemented. Define its format/preset version and snapshot the resolved values at publication; a later preset update should not silently restyle older versions. Do not repurpose the legacy themes table or add migrations for this documentation step.
 

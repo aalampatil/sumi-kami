@@ -10,6 +10,12 @@ Production-style form builder SaaS built on a Turborepo monorepo with **tRPC**, 
 
 Start with the [project map and rough implementation plan](docs/project-plan.md) to see how the apps, API, services, database, theme, and user journeys connect, along with the current gaps and build order.
 
+## Workspace foundation
+
+The dashboard now supports creating, discovering, and opening authorized workspaces, changing workspace names and default response retention, and selecting product light/dark mode. Protected tRPC and REST endpoints share service authorization and a separate restricted database connection. See the [workspace implementation and setup guide](docs/workspaces.md). Form drafting, publication, and respondent journeys follow this slice.
+
+For the existing local Clerk development database, run `pnpm --filter @repo/database db:setup:workspaces` before `pnpm dev:auth`. The guarded setup command applies local migrations and writes a restricted `TENANT_DATABASE_URL` to the ignored API environment file. Production provisioning remains separate.
+
 ## Phase 1: database foundation
 
 - Clerk development authentication with stable local user UUIDs and independent API verification; [setup and rollout guide](docs/auth/clerk-setup.md)
@@ -30,7 +36,7 @@ The professional product interface and selectable respondent themes are separate
 
 ## Apps & packages
 
-- `apps/web`: Next.js dashboard + public form UI (frontend is intentionally minimal for now)
+- `apps/web`: Next.js workspace dashboard and Clerk screens; form-builder and respondent screens follow
 - `apps/api`: Express server exposing:
   - tRPC at `/trpc`
   - OpenAPI REST endpoints at `/api`

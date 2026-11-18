@@ -1,36 +1,25 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/create-next-app).
+# Sumikami web
 
-## Getting Started
+The Next.js application provides the public landing page, Clerk sign-in/up, and the protected workspace dashboard at `http://localhost:3001/dashboard`. Workspace creation, discovery, detail, name/retention settings, and product light/dark mode are implemented. Form-builder and respondent screens follow.
 
-First, run the development server:
+Run these commands from the repository root after configuring the development database and matching Clerk environment files:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```sh
+pnpm --filter @repo/database db:setup:workspaces
+pnpm dev:auth
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The API listens at `http://localhost:8000`. Browser and server-side clients forward Clerk session tokens to the independently authenticated Express API. Workspace permissions are enforced by services, with a separate restricted runtime database connection.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Pages compose focused components from `components/dashboard` and `components/workspaces`. Shared controls live in `components/ui`. Product tokens live in `styles/product-tokens.css`; published form appearance will be a separate versioned system. The app currently bundles Geist Sans and Geist Mono as interim fonts.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load Inter, a custom Google Font.
+```sh
+pnpm --filter web lint
+pnpm --filter web check-types
+pnpm --filter web build
+pnpm --filter web test:auth:e2e
+```
 
-## Learn More
+Browser tests require the running apps, installed Chrome, and development Clerk keys. They retain synthetic test accounts and local workspace fixtures. Environment files, screenshots, and generated output stay out of Git.
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+See [workspace architecture and setup](../../docs/workspaces.md), [Clerk configuration](../../docs/auth/clerk-setup.md), and the [project plan](../../docs/project-plan.md).

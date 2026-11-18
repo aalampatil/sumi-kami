@@ -107,7 +107,7 @@ Sign in -> verify Clerk session/token -> resolve local UUID
         -> open a workspace-scoped database transaction
 ```
 
-Authentication answers “who is this user?” Authorization answers “can this user perform this action in this workspace?” Existing protected procedures establish login, but workspace role checks still need to be built. The global platform `ADMIN` role and workspace `ADMIN` membership are separate concepts.
+Authentication answers “who is this user?” Authorization answers “can this user perform this action in this workspace?” Protected workspace procedures now use discovery and transactional capability checks. The global platform `ADMIN` role and workspace `ADMIN` membership are separate concepts. See the [workspace implementation guide](workspaces.md) for the capability matrix and code organization.
 
 The owner has full workspace access. The initial role model gives workspace admins team/form management, editors form editing and response access, and viewers read access. Services must explicitly enforce the chosen capability matrix before exposing those operations. PostgreSQL RLS isolates workspaces; it does not establish membership on its own.
 
@@ -167,16 +167,16 @@ The creator's dashboard light/dark preference is separate from a published form'
 
 ## 6. Current state and gaps
 
-| Area                    | Current state                                                                                                              |
-| ----------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| Database foundation     | Implemented: schema, migrations, tenant/lifecycle protections, legacy preservation, and PostgreSQL integration tests       |
-| Existing authentication | Clerk development web/API integration is verified; production identity import and session cutover remain separate          |
-| Workspace authorization | Ownership/membership schema exists; discovery, capability enforcement, and management APIs are planned                     |
-| Form/submission APIs    | Need services and routes aligned with the versioned schema                                                                 |
-| Web app                 | Clerk sign-in/up and protected account screen are verified; form-builder product journeys are planned                      |
-| Japanese Ink theme      | Specification and palette exist; visual implementation is planned                                                          |
-| Sumikami brand          | Product identity, palette, logo briefs and typography direction are documented; logo assets and UI integration are planned |
-| Git hooks               | Husky checks staged-file formatting through lint-staged and Prettier                                                       |
+| Area                    | Current state                                                                                                                     |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Database foundation     | Implemented: schema, migrations, tenant/lifecycle protections, legacy preservation, and PostgreSQL integration tests              |
+| Existing authentication | Clerk development web/API integration is verified; production identity import and session cutover remain separate                 |
+| Workspace authorization | Implemented: actor-scoped discovery, capability enforcement, creation and settings APIs; invitations and member management follow |
+| Form/submission APIs    | Need services and routes aligned with the versioned schema                                                                        |
+| Web app                 | Clerk sign-in/up and protected workspace dashboard/settings are implemented; form-builder product journeys are planned            |
+| Japanese Ink theme      | Specification and palette exist; visual implementation is planned                                                                 |
+| Sumikami brand          | Product light/dark palette is applied centrally; final logo assets and selected brand font integration follow                     |
+| Git hooks               | Husky checks staged-file formatting through lint-staged and Prettier                                                              |
 
 The stale legacy auth/router imports were repaired during the approved Clerk integration. Express and Next.js builds and the development sign-up/API/sign-out/returning-sign-in flow now pass. Form endpoints remain unimplemented against the new schema; an empty public namespace does not imply usable respondent APIs. See the [Clerk setup guide](auth/clerk-setup.md) for verification and production rollout boundaries.
 
@@ -184,14 +184,14 @@ Database runtime credentials, forced RLS, transaction context, privileged migrat
 
 ## 7. Rough build order
 
-| Stage                                        | Work                                                                                                                                            | Completion checkpoint                                                                             |
-| -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| 1. Database foundation                       | Versioned definitions, tenant scope, answer integrity, migrations and tests                                                                     | Completed foundation; deployment-specific rollout still follows the operations guide              |
-| 2. Application baseline and workspace access | Extend the verified Clerk/local-identity baseline with production connection provisioning, workspace discovery and capability checks            | A signed-in user can access only authorized workspace operations; application checks pass         |
-| 3. Draft and publishing services             | Typed API contracts, form CRUD, field/step editing, revision checks, full-definition validation and publication                                 | A creator publishes a valid form and can edit a new draft without changing that published version |
-| 4. Public intake and response retrieval      | Safe slug resolution, respondent access/continuation rules, answer validation, completion, idempotency and paginated results                    | A respondent submits once despite retries, and an authorized creator reads the stored answers     |
-| 5. First usable interface                    | Build the dashboard, basic builder, respondent flow and results screen with Sumikami product components and an initial Japanese Ink form preset | The first product journey works through the browser in both supported product light/dark modes    |
-| 6. Richer product capabilities               | Deeper conditional editing, file storage/cleanup, analytics, appearance controls and team management                                            | Add each capability with its own validated user journey and permissions                           |
+| Stage                                        | Work                                                                                                                                                          | Completion checkpoint                                                                             |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| 1. Database foundation                       | Versioned definitions, tenant scope, answer integrity, migrations and tests                                                                                   | Completed foundation; deployment-specific rollout still follows the operations guide              |
+| 2. Application baseline and workspace access | Implemented locally: restricted runtime connection, actor discovery, creation, settings, capabilities and dashboard; deployment provisioning remains separate | Signed-in users can access only authorized workspace operations; see the workspace guide          |
+| 3. Draft and publishing services             | Typed API contracts, form CRUD, field/step editing, revision checks, full-definition validation and publication                                               | A creator publishes a valid form and can edit a new draft without changing that published version |
+| 4. Public intake and response retrieval      | Safe slug resolution, respondent access/continuation rules, answer validation, completion, idempotency and paginated results                                  | A respondent submits once despite retries, and an authorized creator reads the stored answers     |
+| 5. First usable interface                    | Build the dashboard, basic builder, respondent flow and results screen with Sumikami product components and an initial Japanese Ink form preset               | The first product journey works through the browser in both supported product light/dark modes    |
+| 6. Richer product capabilities               | Deeper conditional editing, file storage/cleanup, analytics, appearance controls and team management                                                          | Add each capability with its own validated user journey and permissions                           |
 
 Build stages 2–5 as small connected slices. For example, implement one text question from draft edit through publish, browser submission, and response detail before adding every question type or a large collection of screens.
 

@@ -4,7 +4,7 @@
 
 **Make every question an experience.**
 
-Status: selected brand direction for the product previously described as FormCraft. This guide defines the product identity; logo assets, font integration, and interface styling remain future implementation work.
+Status: selected brand direction for the product previously described as FormCraft. The workspace dashboard now applies central light/dark product colors and shared controls. Final logo assets and the selected brand font integration remain future implementation work; bundled Geist is still the interim UI font. See the [workspace guide](../workspaces.md).
 
 ## Positioning and personality
 

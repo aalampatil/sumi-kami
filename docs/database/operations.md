@@ -25,6 +25,8 @@ The subsequent Clerk integration adds `0010_clerk_identity_mapping`, a nullable 
 | `0007_identity_hardening`        | Normalized unique email, unique session hashes, user soft deletion, restrict legacy owner deletion                       |
 | `0008_cursor_sort_indexes`       | Align index null ordering with default descending pagination                                                             |
 | `0009_guard_cascade_and_expiry`  | Permit clearing choice answers and reject expired submission changes                                                     |
+| `0010_clerk_identity_mapping`    | Preserve local user UUIDs while mapping verified Clerk identities                                                        |
+| `0011_workspace_discovery`       | Allow actor-scoped directory reads only when no workspace context is active                                              |
 
 Use the existing migration command from the repository root:
 
@@ -55,7 +57,7 @@ Do not edit applied migrations, delete journal rows, use `drizzle-kit push` in p
 6. Run `packages/database/operations/legacy-report.sql` as a privileged reporting login; save counts and review reasons in the deployment record. No legacy submissions or answers are mapped to invented historical versions. All remain in the public compatibility tables. `legacy-export.sql` supplies a streaming JSONL export containing original IDs, timestamps, snapshots, metadata, and answer rows; secure the exported file as response data.
 7. Cut over application services only after their tenant authorization, publishing validators, and response validators are implemented. The prior deleted services/routes are not restored by this database phase. Pause or disable old intake during final cutover to prevent diverging histories. Keep legacy export access until the data retention policy permits removal.
 
-No application database was migrated during development. Verification uses databases created solely for the test run.
+The original Phase 1 implementation migrated only disposable test databases. The later Clerk/workspace setup explicitly prepares an isolated local development database; these integrations do not migrate production. Automated integration suites still create databases solely for their own test run.
 
 ## Runtime roles and connection boundaries
 
@@ -69,13 +71,13 @@ GRANT builder_maintenance TO form_builder_cleanup;
 
 The login must inherit its group privileges or explicitly `SET ROLE` after connecting. Do not grant maintenance to the application login. Do not grant `SUPERUSER`, `BYPASSRLS`, schema ownership, schema CREATE, or table ownership to either runtime login. The runtime role has no access to global identity/legacy tables, no field-registry write access, and no audit UPDATE/DELETE or TRUNCATE rights. New tables/functions do not automatically inherit runtime grants; add least-privilege grants and policies in their migrations.
 
-The existing `db` export still uses the legacy application's `DATABASE_URL` for identity/auth compatibility. Create a **separate node-postgres/Drizzle connection** for new tenant operations, with a restricted tenant login. Using the same privileged connection for both defeats isolation. Global users/sessions need a separately restricted authentication connection and application authorization; tenant RLS does not secure identity operations. The current application has not been switched to new form APIs in this phase.
+The existing `db` export uses `DATABASE_URL` for identity/auth compatibility. New workspace services use a separate lazy node-postgres/Drizzle pool from `@repo/database/runtime`, configured by `TENANT_DATABASE_URL`. It never falls back to the identity credential. Runtime transactions reject superusers, bypass/maintenance roles, schema owners, and tenant table owners. Global users/sessions still need a separately restricted authentication connection; tenant RLS does not secure identity operations. Form APIs remain the next phase.
 
 Use `withAuthorizedWorkspace(tenantDb, workspaceId, operation, actorUserId)` from `@repo/database` after authenticating the actor and checking owner/membership permissions. It rejects privileged/non-runtime connections, sets tenant and actor context using parameterized transaction-local configuration on the same connection, and rolls back on failure. Do not call it inside another workspace transaction or reuse an outer transaction for a different workspace. Never set tenant context at session scope.
 
 RLS enforces workspace isolation, including missing context returning no rows. It does **not** prove that a caller is an authorized member: trusted server code must derive the workspace and permissions. An SQL-capable holder of the shared runtime credentials can set another workspace context. Credentials must remain server-side, and request fields must never select scope without authorization. Owner access is implicit from `workspaces.owner_user_id`; admin/editor/viewer capabilities are future service checks, not automatic RLS role checks.
 
-Workspace creation needs a generated UUID and that UUID as transaction context before inserting the workspace. Workspace discovery requires trusted identity code to resolve memberships/ownership before opening the tenant transaction. Public slug resolution similarly requires a narrow trusted lookup; no broad anonymous database role is provided.
+Workspace creation generates a UUID and uses it as transaction context before inserting the authenticated actor as owner. `withWorkspaceDiscovery` now supports trusted actor-only directory lookup through the restricted runtime connection. Migration `0011` permits SELECT of the actor's active owned/joined workspaces and their own memberships only when workspace context is absent. These additional policies are disabled inside scoped workspace transactions. Services rediscover and lock/recheck live authorization before settings writes. See the [workspace guide](../workspaces.md). Public form-slug resolution remains unimplemented; no broad anonymous database role is provided.
 
 ## Database write contracts
 
@@ -130,10 +132,10 @@ In PowerShell, set `$env:TEST_DATABASE_URL = '...'` instead of `export`. The sui
 
 The tests cover migration reruns, legacy preservation, duplicate-identity preflight, RLS with missing/wrong scope, global identity/registry/audit privilege denial, composite constraints, invalid JSON/typed payloads, choice/file ownership and cardinality, concurrent publication and answer completion, immutability, expiry, cascade clearing, pooled transaction-context reset, maintenance purges and representative query plans.
 
-The current working tree also contains concurrent `ignoreDeprecations: "6.0"` edits while the installed compiler is TypeScript 5.9. For that installation, verify with `pnpm --filter @repo/database check-types --ignoreDeprecations 5.0` until the compiler/configuration versions are aligned. These edits were preserved. Broader services/tRPC checks additionally report imports of previously removed modules/routes and are outside the database validation result.
+The original Phase 1 verification needed an `ignoreDeprecations: "5.0"` override and recorded broader stale service/router imports separately. The later Clerk integration aligned the TypeScript 5.9 configuration and removed those broken imports. Current workspace validation uses the normal `pnpm check-types` command across the database, services, tRPC, API, and web packages.
 
 `db:generate` should report no changes after implementation. SQL-only guards must additionally be reviewed/tested; no-change generation does not prove they exist in a live database. To exercise the development seed, explicitly use a `_dev`/`_test` database and `ALLOW_DATABASE_SEED=true`; it creates a draft fixture without passwords or platform-admin credentials. It is not a production bootstrap script.
 
 ## Boundaries remaining for later phases
 
-Workspace membership authorization, validated publication/submission services, slug resolution, storage cleanup execution, backup automation and deployment-specific login provisioning are not product features implemented in this database phase. No UI, theme system, external integration, workflow executor, or public form API is added. Existing unrelated service/web type failures caused by pre-existing deleted files remain outside this scope.
+The subsequent workspace slice implements discovery, workspace capabilities, creation/settings APIs, a restricted runtime connection, and a dashboard; see the [workspace guide](../workspaces.md). Validated publication/submission services, public form-slug resolution, storage cleanup, backup automation, and deployment-specific login provisioning remain separate work. The original database-phase verification record above is historical; current checks are recorded with the workspace implementation.

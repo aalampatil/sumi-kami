@@ -32,7 +32,7 @@ Next.js browser / server component
 - Express verifies authentication independently. Page protection and `<Show>` rendering are not API authorization. Invalid supplied Bearer credentials are rejected; a legacy `fb_session` cookie does not authenticate this API.
 - Current-user access is `auth.me` through tRPC or `/api/authentication/me` through OpenAPI. Clerk owns sign-in/up/out; old password/cookie-creation endpoints are not registered.
 - Browser links use `useAuth().getToken`; server links obtain tokens on a request-specific client. Query caches are replaced when the signed-in identity changes.
-- Local platform roles and soft deletion still apply. Workspace capability enforcement remains a separate service responsibility.
+- Local platform roles and soft deletion still apply. Workspace capability enforcement is implemented separately in the [workspace services](../workspaces.md); platform administration grants no implicit workspace access.
 - Deleted legacy form/response services were not restored. Their broken router imports were removed, leaving an empty public form namespace until versioned endpoints are implemented.
 
 The legacy credential/session tables and auth implementation remain preserved. No production sessions were revoked. JWT API access follows Clerk's token lifetime; signing out is not a promise that every already-issued token becomes invalid instantly.
@@ -53,14 +53,14 @@ pnpm dev:auth
 
 `dev:auth` selects only web and API, rather than also launching database Studio. The API explicitly loads `apps/api/.env.local`; Next.js loads `apps/web/.env.local`. Both are Git-ignored. The CLI-created development keys were supplied to the API without printing them.
 
-| Configuration file    | Required variables                                                                                                                                  |
-| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `apps/web/.env.local` | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, server-only `CLERK_SECRET_KEY`, Clerk sign-in/up and dashboard fallback URLs, `API_URL`, `NEXT_PUBLIC_API_URL` |
-| `apps/api/.env.local` | `CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`, `DATABASE_URL`, `AUTHORIZED_PARTIES`, `PORT`, `BASE_URL`, `NODE_ENV`                                   |
+| Configuration file    | Required variables                                                                                                                                                |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `apps/web/.env.local` | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, server-only `CLERK_SECRET_KEY`, Clerk sign-in/up and dashboard fallback URLs, `API_URL`, `NEXT_PUBLIC_API_URL`               |
+| `apps/api/.env.local` | `CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`, `DATABASE_URL`, `AUTHORIZED_PARTIES`, `PORT`, `BASE_URL`, `NODE_ENV`; `TENANT_DATABASE_URL` for workspace operations |
 
 Local authorized parties and CORS origins are `http://localhost:3001` and `http://127.0.0.1:3001`. Deployments need their real origins and matching instance keys. Never expose the secret key through a `NEXT_PUBLIC_` variable.
 
-The isolated local database received migrations `0000`–`0010`. The additive `0010_clerk_identity_mapping` adds a nullable unique text column and preserves UUIDs/foreign keys. **It was not applied to production during this integration.** App startup does not automatically migrate a database.
+The isolated local database received migrations `0000`–`0010` during Clerk setup, followed by `0011_workspace_discovery` during the workspace implementation. The additive `0010_clerk_identity_mapping` adds a nullable unique text column and preserves UUIDs/foreign keys. **These development integrations did not migrate production.** App startup does not automatically migrate a database. The guarded `pnpm --filter @repo/database db:setup:workspaces` command explicitly prepares the local workspace connection before starting the API.
 
 ## Identity behavior
 
