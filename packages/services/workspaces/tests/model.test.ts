@@ -212,3 +212,10 @@ test("discovery cannot be redirected with an unchecked tenant filter", () => {
 test("an identifier without a timestamp is rejected instead of restarting pagination", () => {
   assert.equal(listWorkspacesSchema.safeParse({ cursorId: id }).success, false);
 });
+
+test("a timestamp without a tie-breaker cannot skip tied rows", () => {
+  assert.equal(
+    listWorkspacesSchema.safeParse({ cursorCreatedAt: summary.createdAt }).success,
+    false,
+  );
+});
