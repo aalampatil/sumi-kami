@@ -302,3 +302,11 @@ test("deny identity-table reads through the runtime credential", async () => {
     (error) => (error as { code?: string }).code === "42501",
   );
 });
+
+test("deny runtime audit-history rewrites", async () => {
+  const f = getFixture();
+  await assert.rejects(
+    () => f.runtimePool.query("DELETE FROM builder.workspace_audit_events"),
+    (error) => (error as { code?: string }).code === "42501",
+  );
+});
