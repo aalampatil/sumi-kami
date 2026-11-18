@@ -185,3 +185,25 @@ test("observe membership revocation on the next request", async () => {
   );
   await accessFailure(() => f.service.get(f.users.viewer, created.id), "NOT_FOUND");
 });
+
+test("observe downgraded workspace roles on the next write", async () => {
+  const f = getFixture();
+  const created = await f.createWorkspace();
+  await f.pool.query(
+    "INSERT INTO builder.workspace_memberships (workspace_id,user_id,role) VALUES ($1,$2,'ADMIN')",
+    [created.id, f.users.viewer],
+  );
+  await f.pool.query(
+    "UPDATE builder.workspace_memberships SET role='VIEWER' WHERE workspace_id=$1 AND user_id=$2",
+    [created.id, f.users.viewer],
+  );
+  await accessFailure(
+    () =>
+      f.service.update(f.users.viewer, {
+        workspaceId: created.id,
+        name: "Stale admin",
+        retentionDays: null,
+      }),
+    "FORBIDDEN",
+  );
+});
