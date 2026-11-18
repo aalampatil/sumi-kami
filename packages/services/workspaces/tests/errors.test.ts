@@ -21,3 +21,8 @@ test("terminate safely on circular error causes", () => {
 test("leave unrelated exceptions unclassified", () => {
   assert.equal(postgresError(new Error("connection unavailable")), undefined);
 });
+
+test("ignore non-object rejection reasons", () => {
+  for (const error of [null, undefined, "failure", 123, true])
+    assert.equal(postgresError(error), undefined);
+});
