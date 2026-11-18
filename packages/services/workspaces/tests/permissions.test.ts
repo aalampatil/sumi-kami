@@ -5,3 +5,7 @@ import { hasWorkspaceCapability } from "../permissions";
 test("owner can workspace read", () => {
   assert.equal(hasWorkspaceCapability("OWNER", "workspace:read"), true);
 });
+
+test("owner can workspace update", () => {
+  assert.equal(hasWorkspaceCapability("OWNER", "workspace:update"), true);
+});
