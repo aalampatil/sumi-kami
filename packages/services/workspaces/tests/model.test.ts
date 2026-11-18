@@ -99,3 +99,7 @@ test("settings reject promoting the current member", () => {
 test("settings reject undeleting a workspace", () => {
   assert.equal(updateWorkspaceSchema.safeParse({ ...update, deletedAt: null }).success, false);
 });
+
+test("settings reject removing memberships through settings", () => {
+  assert.equal(updateWorkspaceSchema.safeParse({ ...update, memberships: [] }).success, false);
+});
