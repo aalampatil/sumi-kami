@@ -338,3 +338,23 @@ test("preserve stable addresses when display names change", async () => {
   assert.equal(updated.slug, created.slug);
   assert.equal(updated.id, created.id);
 });
+
+test("paginate identical timestamps without duplicates or omissions", async () => {
+  const f = getFixture();
+  const created = Array.from({ length: 5 }, () => randomUUID());
+  for (const id of created)
+    await f.pool.query(
+      "INSERT INTO builder.workspaces (id,owner_user_id,name,slug,created_at) VALUES ($1,$2,'Timestamp fixture',$3,'2026-11-18T12:00:00.123456Z')",
+      [id, f.users.platformAdmin, "cursor-" + id],
+    );
+  const found: string[] = [];
+  let cursor: { cursorCreatedAt?: string; cursorId?: string } = {};
+  for (let page = 0; page < 5; page++) {
+    const result = await f.service.list(f.users.platformAdmin, { limit: 2, ...cursor });
+    found.push(...result.items.map((item) => item.id));
+    if (!result.nextCursor) break;
+    cursor = { cursorCreatedAt: result.nextCursor.createdAt, cursorId: result.nextCursor.id };
+  }
+  assert.deepEqual(new Set(found), new Set(created));
+  assert.equal(found.length, 5);
+});
