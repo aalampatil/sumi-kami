@@ -22,3 +22,5 @@ export const createWorkspaceSchema = z.strictObject({
   slug: workspaceSlugSchema,
 });
 export type CreateWorkspaceInput = z.infer<typeof createWorkspaceSchema>;
+
+export const workspaceIdSchema = z.strictObject({ workspaceId: z.uuid() });
