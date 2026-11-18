@@ -5,8 +5,8 @@
   "private": true,
   "scripts": {
     "prepare": "husky",
-    "build": "dotenv -- turbo run build",
-    "dev": "dotenv -- turbo run dev",
+    "build": "turbo run build",
+    "dev": "turbo run dev",
     "db:generate": "dotenv -- turbo run db:generate",
     "db:migrate": "dotenv -- turbo run db:migrate",
     "db:seed": "dotenv -- turbo run db:seed",
