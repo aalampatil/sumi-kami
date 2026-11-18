@@ -196,3 +196,7 @@ test("settings do not accept SQL-like workspace identifiers", () => {
     false,
   );
 });
+
+test("omitting pagination chooses a bounded first page", () => {
+  assert.deepEqual(listWorkspacesSchema.parse({}), { limit: 20 });
+});
