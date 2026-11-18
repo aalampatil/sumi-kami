@@ -28,3 +28,7 @@ test("workspace creation trims display names without changing the chosen address
 test("creation rejects impersonating another owner", () => {
   assert.equal(createWorkspaceSchema.safeParse({ ...create, ownerUserId: id }).success, false);
 });
+
+test("creation rejects choosing the server-owned workspace identifier", () => {
+  assert.equal(createWorkspaceSchema.safeParse({ ...create, id: id }).success, false);
+});
