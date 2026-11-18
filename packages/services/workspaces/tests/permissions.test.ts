@@ -97,3 +97,7 @@ test("editor can responses read", () => {
 test("editor can responses export", () => {
   assert.equal(hasWorkspaceCapability("EDITOR", "responses:export"), true);
 });
+
+test("viewer can workspace read", () => {
+  assert.equal(hasWorkspaceCapability("VIEWER", "workspace:read"), true);
+});
