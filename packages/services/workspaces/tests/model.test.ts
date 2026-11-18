@@ -224,3 +224,11 @@ test("a returned microsecond timestamp can be submitted unchanged", () => {
   const result = listWorkspacesSchema.parse({ cursorCreatedAt: summary.createdAt, cursorId: id });
   assert.equal(result.cursorCreatedAt, summary.createdAt);
 });
+
+test("cursor timestamps require an explicit timezone", () => {
+  assert.equal(
+    listWorkspacesSchema.safeParse({ cursorCreatedAt: "2026-11-18T12:00:00", cursorId: id })
+      .success,
+    false,
+  );
+});
