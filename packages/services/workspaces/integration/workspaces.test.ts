@@ -326,3 +326,15 @@ test("clear retention only through an explicit settings update", async () => {
   });
   assert.equal(updated.retentionDays, null);
 });
+
+test("preserve stable addresses when display names change", async () => {
+  const f = getFixture();
+  const created = await f.createWorkspace();
+  const updated = await f.service.update(f.users.owner, {
+    workspaceId: created.id,
+    name: "Renamed workspace",
+    retentionDays: null,
+  });
+  assert.equal(updated.slug, created.slug);
+  assert.equal(updated.id, created.id);
+});
