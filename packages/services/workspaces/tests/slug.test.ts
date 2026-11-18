@@ -5,3 +5,7 @@ import { suggestWorkspaceSlug } from "../../../../apps/web/lib/workspace-slug";
 test("convert human titles to readable addresses", () => {
   assert.equal(suggestWorkspaceSlug("My Design Studio"), "my-design-studio");
 });
+
+test("normalize accented Latin names", () => {
+  assert.equal(suggestWorkspaceSlug("Café Étude"), "cafe-etude");
+});
