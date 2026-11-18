@@ -5,3 +5,7 @@ import { tenantConnectionString } from "../../../database/runtime-config";
 test("require an explicit tenant credential", () => {
   assert.throws(() => tenantConnectionString({}), /TENANT_DATABASE_URL/);
 });
+
+test("reject whitespace-only tenant credentials", () => {
+  assert.throws(() => tenantConnectionString({ TENANT_DATABASE_URL: "  " }), /restricted/);
+});
