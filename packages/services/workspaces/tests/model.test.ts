@@ -66,3 +66,10 @@ test("creation rejects backdating workspace creation", () => {
 test("creation rejects overriding retention during creation", () => {
   assert.equal(createWorkspaceSchema.safeParse({ ...create, retentionDays: 1 }).success, false);
 });
+
+test("creation rejects injecting unrelated form state", () => {
+  assert.equal(
+    createWorkspaceSchema.safeParse({ ...create, publishedVersionId: id }).success,
+    false,
+  );
+});
