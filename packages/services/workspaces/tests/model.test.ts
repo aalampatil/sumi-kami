@@ -91,3 +91,7 @@ test("settings reject changing stable workspace addresses", () => {
     false,
   );
 });
+
+test("settings reject promoting the current member", () => {
+  assert.equal(updateWorkspaceSchema.safeParse({ ...update, role: "OWNER" }).success, false);
+});
