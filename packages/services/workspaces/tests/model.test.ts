@@ -44,3 +44,7 @@ test("creation rejects injecting team memberships", () => {
     false,
   );
 });
+
+test("creation rejects forging the audit actor", () => {
+  assert.equal(createWorkspaceSchema.safeParse({ ...create, actorUserId: id }).success, false);
+});
