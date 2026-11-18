@@ -7,6 +7,12 @@ import { ThemeToggle } from "~/components/theme-toggle";
 export function DashboardShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen lg:grid lg:grid-cols-[224px_minmax(0,1fr)]">
+      <a
+        href="#main-content"
+        className="sr-only z-50 rounded-md bg-primary p-3 text-primary-foreground focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
+      >
+        Skip to content
+      </a>
       <aside className="border-b bg-card px-5 py-5 lg:min-h-screen lg:border-r lg:border-b-0 lg:px-6 lg:py-8">
         <Link
           href="/"
