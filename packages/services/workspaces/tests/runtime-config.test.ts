@@ -53,3 +53,13 @@ test("trim accidental surrounding URL whitespace", () => {
   const value = "postgresql://runtime:secret@localhost/workspace_dev";
   assert.equal(tenantConnectionString({ TENANT_DATABASE_URL: "  " + value + "  " }), value);
 });
+
+test("keep secrets out of malformed configuration errors", () => {
+  assert.throws(
+    () =>
+      tenantConnectionString({
+        TENANT_DATABASE_URL: "https://runtime:do-not-print-this@localhost/db",
+      }),
+    (error) => error instanceof Error && !error.message.includes("do-not-print-this"),
+  );
+});
