@@ -219,3 +219,8 @@ test("a timestamp without a tie-breaker cannot skip tied rows", () => {
     false,
   );
 });
+
+test("a returned microsecond timestamp can be submitted unchanged", () => {
+  const result = listWorkspacesSchema.parse({ cursorCreatedAt: summary.createdAt, cursorId: id });
+  assert.equal(result.cursorCreatedAt, summary.createdAt);
+});
