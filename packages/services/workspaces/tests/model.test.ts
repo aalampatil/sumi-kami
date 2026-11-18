@@ -208,3 +208,7 @@ test("discovery rejects a caller-supplied actor", () => {
 test("discovery cannot be redirected with an unchecked tenant filter", () => {
   assert.equal(listWorkspacesSchema.safeParse({ workspaceId: id }).success, false);
 });
+
+test("an identifier without a timestamp is rejected instead of restarting pagination", () => {
+  assert.equal(listWorkspacesSchema.safeParse({ cursorId: id }).success, false);
+});
