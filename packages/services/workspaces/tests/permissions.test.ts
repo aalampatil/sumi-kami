@@ -85,3 +85,7 @@ test("editor can forms read", () => {
 test("editor can forms edit", () => {
   assert.equal(hasWorkspaceCapability("EDITOR", "forms:edit"), true);
 });
+
+test("editor can forms publish", () => {
+  assert.equal(hasWorkspaceCapability("EDITOR", "forms:publish"), true);
+});
