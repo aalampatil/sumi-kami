@@ -1,12 +1,13 @@
 "use client";
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { Plus } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -60,7 +61,18 @@ export function CreateWorkspaceDialog() {
           Create workspace
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent showCloseButton={false}>
+        <DialogClose asChild>
+          <Button
+            type="button"
+            variant="ghost"
+            className="absolute top-2 right-2 size-11"
+            aria-label="Close workspace dialog"
+            disabled={create.isPending}
+          >
+            <X aria-hidden="true" />
+          </Button>
+        </DialogClose>
         <DialogHeader>
           <DialogTitle>Create a workspace</DialogTitle>
           <DialogDescription>Give your forms and your team a place to call home.</DialogDescription>
@@ -107,7 +119,12 @@ export function CreateWorkspaceDialog() {
                   setCustomSlug(true);
                   setSlug(event.target.value);
                 }}
-                aria-describedby="workspace-slug-help"
+                aria-invalid={create.error?.data?.code === "CONFLICT"}
+                aria-describedby={
+                  create.error?.data?.code === "CONFLICT"
+                    ? "workspace-slug-help workspace-create-error"
+                    : "workspace-slug-help"
+                }
                 className="min-h-11"
               />
               <p id="workspace-slug-help" className="text-xs leading-5 text-muted-foreground">

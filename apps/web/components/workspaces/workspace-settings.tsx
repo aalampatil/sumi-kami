@@ -1,5 +1,6 @@
 "use client";
 import { useState, type FormEvent } from "react";
+import { useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import type { WorkspaceSummary } from "@repo/trpc/client";
@@ -8,6 +9,8 @@ import { Input } from "~/components/ui/input";
 import { trpc } from "~/trpc/client";
 
 export function WorkspaceSettings({ workspace }: { workspace: WorkspaceSummary }) {
+  const { isLoaded, isSignedIn } = useAuth();
+  const ready = isLoaded && isSignedIn;
   const [name, setName] = useState(workspace.name);
   const [retention, setRetention] = useState(workspace.retentionDays?.toString() ?? "");
   const [validationError, setValidationError] = useState("");
@@ -48,8 +51,8 @@ export function WorkspaceSettings({ workspace }: { workspace: WorkspaceSummary }
           ? "Manage the details that keep your workspace organized."
           : "You can view this workspace. An owner or admin can change its settings."}
       </p>
-      <form onSubmit={submit} className="mt-7 space-y-6">
-        <fieldset disabled={!canManage || update.isPending} className="space-y-6">
+      <form onSubmit={submit} className="mt-7 space-y-6" aria-busy={!ready || update.isPending}>
+        <fieldset disabled={!ready || !canManage || update.isPending} className="space-y-6">
           <div className="space-y-2">
             <label htmlFor="settings-name" className="text-sm font-medium">
               Workspace name
@@ -97,8 +100,8 @@ export function WorkspaceSettings({ workspace }: { workspace: WorkspaceSummary }
           </p>
         ) : null}
         {canManage ? (
-          <Button type="submit" className="min-h-11" disabled={update.isPending}>
-            {update.isPending ? "Saving settings…" : "Save settings"}
+          <Button type="submit" className="min-h-11" disabled={!ready || update.isPending}>
+            {!ready ? "Loading account…" : update.isPending ? "Saving settings…" : "Save settings"}
           </Button>
         ) : null}
       </form>

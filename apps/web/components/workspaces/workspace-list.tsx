@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { useAuth } from "@clerk/nextjs";
 import { FolderOpen } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { CreateWorkspaceDialog } from "./create-workspace-dialog";
@@ -8,9 +9,26 @@ import { trpc } from "~/trpc/client";
 
 type Cursor = { cursorCreatedAt: string; cursorId: string };
 export function WorkspaceList() {
+  const { isLoaded, isSignedIn } = useAuth();
+  const ready = isLoaded && isSignedIn;
   const [cursors, setCursors] = useState<Cursor[]>([]);
   const current = cursors.at(-1);
-  const workspaces = trpc.workspaces.list.useQuery({ limit: 20, ...current }, { retry: false });
+  const workspaces = trpc.workspaces.list.useQuery(
+    { limit: 20, ...current },
+    { retry: false, enabled: ready },
+  );
+  // Mount interactive state only after the identity-scoped query provider is ready.
+  if (!ready)
+    return (
+      <section className="mt-10" aria-labelledby="workspaces-heading" aria-busy="true">
+        <h2 id="workspaces-heading" className="text-xl font-semibold">
+          Your workspaces
+        </h2>
+        <p role="status" className="mt-6 text-sm text-muted-foreground">
+          Loading your account…
+        </p>
+      </section>
+    );
   return (
     <section
       className="mt-10"

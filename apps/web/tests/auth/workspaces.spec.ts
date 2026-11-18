@@ -67,21 +67,19 @@ test("a creator manages a workspace while a second account remains isolated", as
   expect(listing.status()).toBe(200);
   expect((await listing.json()).items).toHaveLength(1);
   await page.getByRole("link", { name: "All workspaces", exact: true }).click();
+  await expect(page).toHaveURL(/\/dashboard$/);
+  await expect(page.getByRole("heading", { name: "Your workspaces", exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: name + " renamed", exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Toggle color theme" }).click();
   await expect(page.locator("html")).toHaveClass(/dark/);
   await page.reload();
+  await expect(page).toHaveURL(/\/dashboard$/);
+  await expect(page.getByRole("heading", { name: "Your workspaces", exact: true })).toBeVisible();
   await expect(page.locator("html")).toHaveClass(/dark/);
   await page.setViewportSize({ width: 375, height: 812 });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
     true,
   );
-  await page.getByRole("button", { name: "Create workspace", exact: true }).click();
-  await dialog.getByLabel("Workspace name").fill("Duplicate studio");
-  await dialog.getByLabel("Workspace address").fill(slug);
-  await dialog.getByRole("button", { name: "Create workspace", exact: true }).click();
-  await expect(dialog.getByRole("alert")).toContainText("already in use");
-  await dialog.getByRole("button", { name: "Cancel", exact: true }).click();
   const context = await browser.newContext({ baseURL: "http://localhost:3001" });
   try {
     const other = await context.newPage();
@@ -99,4 +97,29 @@ test("a creator manages a workspace while a second account remains isolated", as
     await context.close();
   }
   await page.screenshot({ path: "test-results/workspace-dashboard-mobile.png", fullPage: true });
+});
+
+test("duplicate addresses keep the creator dialog open with actionable feedback", async ({
+  page,
+  request,
+}) => {
+  const account = await createWorkspaceTestAccount(page);
+  const slug = "duplicate-" + randomUUID();
+  const created = await request.post(api + "/workspaces", {
+    headers: { Authorization: "Bearer " + account.token },
+    data: { name: "Existing studio", slug },
+  });
+  expect(created.status()).toBe(200);
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.getByRole("button", { name: "Create workspace", exact: true }).click();
+  const dialog = page.getByRole("dialog");
+  await dialog.getByLabel("Workspace name").fill("Duplicate studio");
+  await dialog.getByLabel("Workspace address").fill(slug);
+  const response = page.waitForResponse((result) => result.url().includes("workspaces.create"));
+  await dialog.getByRole("button", { name: "Create workspace", exact: true }).click();
+  const duplicate = await response;
+  expect(duplicate.status()).toBe(409);
+  await expect(dialog.getByRole("alert")).toContainText("already in use");
+  await expect(dialog.getByLabel("Workspace address")).toHaveAttribute("aria-invalid", "true");
+  await expect(dialog.getByLabel("Workspace address")).toHaveValue(slug);
 });
