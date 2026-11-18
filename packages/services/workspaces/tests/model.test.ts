@@ -80,3 +80,7 @@ test("serialized prototype fields cannot bypass strict creation input", () => {
   );
   assert.equal(createWorkspaceSchema.safeParse(payload).success, false);
 });
+
+test("settings reject ownership transfer through settings", () => {
+  assert.equal(updateWorkspaceSchema.safeParse({ ...update, ownerUserId: id }).success, false);
+});
