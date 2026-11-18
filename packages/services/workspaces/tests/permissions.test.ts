@@ -41,3 +41,7 @@ test("admin can workspace read", () => {
 test("admin can workspace update", () => {
   assert.equal(hasWorkspaceCapability("ADMIN", "workspace:update"), true);
 });
+
+test("admin can members manage", () => {
+  assert.equal(hasWorkspaceCapability("ADMIN", "members:manage"), true);
+});
