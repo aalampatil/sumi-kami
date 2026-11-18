@@ -232,3 +232,11 @@ test("cursor timestamps require an explicit timezone", () => {
     false,
   );
 });
+
+test("cursor identifiers are validated before interpolation into SQL", () => {
+  assert.equal(
+    listWorkspacesSchema.safeParse({ cursorCreatedAt: summary.createdAt, cursorId: "not-a-uuid" })
+      .success,
+    false,
+  );
+});
