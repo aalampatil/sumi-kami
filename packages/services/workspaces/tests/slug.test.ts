@@ -33,3 +33,9 @@ test("trim separators at the address boundary", () => {
 test("handle an empty workspace title", () => {
   assert.equal(suggestWorkspaceSlug(""), "");
 });
+
+test("truncating a long suggested address retains a valid final character", () => {
+  const value = suggestWorkspaceSlug("a".repeat(119) + " b");
+  assert.equal(value, "a".repeat(119));
+  assert.ok(value.length <= 120);
+});
