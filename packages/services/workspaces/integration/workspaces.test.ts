@@ -65,3 +65,18 @@ test("prevent global platform admins from bypassing workspace membership", async
   assert.deepEqual((await f.service.list(f.users.platformAdmin, { limit: 50 })).items, []);
   await accessFailure(() => f.service.get(f.users.platformAdmin, f.workspace.id), "NOT_FOUND");
 });
+
+test("grant owner authority despite a lower membership role", async () => {
+  const f = getFixture();
+  const created = await f.createWorkspace();
+  await f.pool.query(
+    "INSERT INTO builder.workspace_memberships (workspace_id,user_id,role) VALUES ($1,$2,'VIEWER')",
+    [created.id, f.users.owner],
+  );
+  assert.equal((await f.service.get(f.users.owner, created.id)).role, "OWNER");
+  await f.service.update(f.users.owner, {
+    workspaceId: created.id,
+    name: "Owner edit",
+    retentionDays: null,
+  });
+});
