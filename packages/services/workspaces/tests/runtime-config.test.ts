@@ -16,3 +16,11 @@ test("reject non-URL tenant settings", () => {
     /PostgreSQL URL/,
   );
 });
+
+test("reject HTTP URLs as database credentials", () => {
+  assert.throws(
+    () =>
+      tenantConnectionString({ TENANT_DATABASE_URL: "https://runtime:secret@example.invalid/db" }),
+    /PostgreSQL/,
+  );
+});
