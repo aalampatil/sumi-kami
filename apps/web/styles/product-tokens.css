@@ -40,3 +40,7 @@
   --ring: #e1947c;
   --destructive: #f19a9d;
 }
+
+body {
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+}
