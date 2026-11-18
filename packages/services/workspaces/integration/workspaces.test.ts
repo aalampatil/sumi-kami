@@ -286,3 +286,11 @@ test("reset actor and workspace context after pooled transactions", async () => 
   assert.ok(!result.rows[0].workspace);
   assert.ok(!result.rows[0].actor);
 });
+
+test("reject privileged database connections for tenant discovery", async () => {
+  const f = getFixture();
+  await assert.rejects(
+    () => withWorkspaceDiscovery(drizzle(f.pool), f.users.owner, async () => undefined),
+    /non-owner builder_runtime/,
+  );
+});
