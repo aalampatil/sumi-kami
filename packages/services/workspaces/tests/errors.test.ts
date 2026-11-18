@@ -30,3 +30,8 @@ test("ignore non-object rejection reasons", () => {
 test("ignore non-string database error codes", () => {
   assert.equal(postgresError({ code: 23505 }), undefined);
 });
+
+test("retain explicit access denial reasons", () => {
+  assert.equal(new WorkspaceAccessError("FORBIDDEN").reason, "FORBIDDEN");
+  assert.equal(new WorkspaceAccessError("NOT_FOUND").name, "WorkspaceAccessError");
+});
