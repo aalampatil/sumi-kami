@@ -294,3 +294,11 @@ test("reject privileged database connections for tenant discovery", async () => 
     /non-owner builder_runtime/,
   );
 });
+
+test("deny identity-table reads through the runtime credential", async () => {
+  const f = getFixture();
+  await assert.rejects(
+    () => f.runtimePool.query("SELECT email FROM public.users"),
+    (error) => (error as { code?: string }).code === "42501",
+  );
+});
