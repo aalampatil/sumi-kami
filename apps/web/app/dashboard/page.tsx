@@ -1,34 +1,40 @@
 import { auth } from "@clerk/nextjs/server";
-import { UserButton } from "@clerk/nextjs";
-import Link from "next/link";
 import { Suspense } from "react";
 import { createServerApi } from "~/trpc/server";
+import { DashboardShell } from "~/components/dashboard/shell";
+import { WorkspaceList } from "~/components/workspaces/workspace-list";
 
 async function AccountOverview() {
   await auth.protect();
   const api = await createServerApi();
   const user = await api.auth.me.query();
   return (
-    <section className="space-y-3" aria-labelledby="account-heading" data-testid="account-overview">
-      <h1 id="account-heading" className="text-3xl font-semibold">
-        Welcome, {user.fullName}
-      </h1>
-      <p>{user.email}</p>
-      <p className="text-muted-foreground">Your Sumikami account is connected.</p>
-    </section>
+    <DashboardShell>
+      <section aria-labelledby="account-heading" data-testid="account-overview">
+        <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+          Your creative space
+        </p>
+        <h1 id="account-heading" className="mt-3 break-words text-3xl font-semibold tracking-tight">
+          Welcome, {user.fullName}
+        </h1>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Every good question starts with a little space to think.
+        </p>
+      </section>
+      <WorkspaceList />
+    </DashboardShell>
   );
 }
-
 export default function Dashboard() {
   return (
-    <main className="mx-auto min-h-screen max-w-4xl space-y-12 px-6 py-10">
-      <header className="flex items-center justify-between">
-        <Link href="/">Sumikami</Link>
-        <UserButton />
-      </header>
-      <Suspense fallback={<p>Loading your account…</p>}>
-        <AccountOverview />
-      </Suspense>
-    </main>
+    <Suspense
+      fallback={
+        <main className="p-10" role="status">
+          Loading your workspace…
+        </main>
+      }
+    >
+      <AccountOverview />
+    </Suspense>
   );
 }
