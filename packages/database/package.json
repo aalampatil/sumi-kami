@@ -10,7 +10,8 @@
     "db:migrate:prod": "node scripts/migrate-production.cjs",
     "db:generate": "dotenv -- drizzle-kit generate",
     "dev": "dotenv -- drizzle-kit studio --port 4984",
-    "db:seed": "dotenv -- tsx ./seed.ts"
+    "db:seed": "dotenv -- tsx ./seed.ts",
+    "db:setup:workspaces": "tsx scripts/setup-local-workspaces.ts"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",

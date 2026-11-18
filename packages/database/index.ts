@@ -7,3 +7,6 @@ export * from "drizzle-orm";
 export { withAuthorizedWorkspace } from "./tenant";
 export type { WorkspaceTransaction } from "./tenant";
 export default db;
+
+export { withWorkspaceDiscovery } from "./discovery";
+export type { TenantDatabase } from "./runtime-security";
