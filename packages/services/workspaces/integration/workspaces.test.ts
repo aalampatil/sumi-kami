@@ -54,3 +54,8 @@ test("discover joined workspaces without exposing other owners", async () => {
   );
   assert.equal(result.items[0]?.role, "VIEWER");
 });
+
+test("hide other workspaces from an unrelated owner", async () => {
+  const f = getFixture();
+  await accessFailure(() => f.service.get(f.users.owner, f.otherWorkspace.id), "NOT_FOUND");
+});
