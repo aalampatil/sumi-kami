@@ -37,10 +37,16 @@ export const workspaceCursorSchema = z.strictObject({
   id: z.uuid(),
 });
 
-export const listWorkspacesSchema = z.strictObject({
-  limit: z.number().int().min(1).max(50).default(20),
-  cursor: workspaceCursorSchema.optional(),
-});
+export const listWorkspacesSchema = z
+  .strictObject({
+    limit: z.number().int().min(1).max(50).default(20),
+    cursorCreatedAt: z.iso.datetime({ offset: true }).optional(),
+    cursorId: z.uuid().optional(),
+  })
+  .refine((input) => Boolean(input.cursorCreatedAt) === Boolean(input.cursorId), {
+    message: "Supply both cursor fields.",
+    path: ["cursorId"],
+  });
 export type ListWorkspacesInput = z.infer<typeof listWorkspacesSchema>;
 
 export const workspaceSummarySchema = z.strictObject({
