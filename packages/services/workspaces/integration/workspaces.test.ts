@@ -143,3 +143,15 @@ test("report missing workspaces without exposing membership state", async () => 
   const f = getFixture();
   await accessFailure(() => f.service.get(f.users.owner, randomUUID()), "NOT_FOUND");
 });
+
+test("hide deleted workspaces from discovery", async () => {
+  const f = getFixture();
+  const created = await f.createWorkspace();
+  await f.pool.query("UPDATE builder.workspaces SET deleted_at=now() WHERE id=$1", [created.id]);
+  await accessFailure(() => f.service.get(f.users.owner, created.id), "NOT_FOUND");
+  assert.ok(
+    !(await f.service.list(f.users.owner, { limit: 50 })).items.some(
+      (item) => item.id === created.id,
+    ),
+  );
+});
