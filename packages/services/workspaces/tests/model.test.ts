@@ -263,3 +263,7 @@ test("discovery rejects oversized page requests", () => {
 test("discovery rejects fractional page requests", () => {
   assert.equal(listWorkspacesSchema.safeParse({ limit: 1.5 }).success, false);
 });
+
+test("discovery rejects unparsed string page requests", () => {
+  assert.equal(listWorkspacesSchema.safeParse({ limit: "20" }).success, false);
+});
