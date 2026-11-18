@@ -30,3 +30,16 @@ const viewerCapabilities: readonly WorkspaceCapability[] = [
   "forms:read",
   "responses:read",
 ];
+
+const capabilities: Record<WorkspaceRole, readonly WorkspaceCapability[]> = {
+  OWNER: ownerCapabilities,
+  ADMIN: adminCapabilities,
+  EDITOR: editorCapabilities,
+  VIEWER: viewerCapabilities,
+};
+export function hasWorkspaceCapability(
+  role: WorkspaceRole,
+  capability: WorkspaceCapability,
+): boolean {
+  return capabilities[role]?.includes(capability) ?? false;
+}
