@@ -73,3 +73,7 @@ test("editor can workspace read", () => {
 test("editor cannot workspace update", () => {
   assert.equal(hasWorkspaceCapability("EDITOR", "workspace:update"), false);
 });
+
+test("editor cannot members manage", () => {
+  assert.equal(hasWorkspaceCapability("EDITOR", "members:manage"), false);
+});
