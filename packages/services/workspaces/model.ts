@@ -31,3 +31,8 @@ export const updateWorkspaceSchema = z.strictObject({
   retentionDays: workspaceRetentionSchema,
 });
 export type UpdateWorkspaceInput = z.infer<typeof updateWorkspaceSchema>;
+
+export const workspaceCursorSchema = z.strictObject({
+  createdAt: z.iso.datetime({ offset: true }),
+  id: z.uuid(),
+});
