@@ -17,3 +17,10 @@ const summary = {
   retentionDays: null,
   createdAt: "2026-11-18T12:00:00.123456Z",
 };
+
+test("workspace creation trims display names without changing the chosen address", () => {
+  assert.deepEqual(createWorkspaceSchema.parse({ ...create, name: "  墨 Design studio  " }), {
+    ...create,
+    name: "墨 Design studio",
+  });
+});
