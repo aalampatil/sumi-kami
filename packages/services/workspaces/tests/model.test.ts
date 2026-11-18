@@ -55,3 +55,10 @@ test("creation rejects creating a predeleted workspace", () => {
     false,
   );
 });
+
+test("creation rejects backdating workspace creation", () => {
+  assert.equal(
+    createWorkspaceSchema.safeParse({ ...create, createdAt: "2020-01-01T00:00:00Z" }).success,
+    false,
+  );
+});
