@@ -44,3 +44,13 @@ test("list owned workspaces without requiring membership rows", async () => {
   const result = await f.service.list(f.users.stranger, { limit: 50 });
   assert.ok(result.items.some((item) => item.id === f.otherWorkspace.id && item.role === "OWNER"));
 });
+
+test("discover joined workspaces without exposing other owners", async () => {
+  const f = getFixture();
+  const result = await f.service.list(f.users.viewer, { limit: 50 });
+  assert.deepEqual(
+    result.items.map((item) => item.id),
+    [f.workspace.id],
+  );
+  assert.equal(result.items[0]?.role, "VIEWER");
+});
