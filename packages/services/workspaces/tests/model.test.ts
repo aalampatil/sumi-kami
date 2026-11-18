@@ -24,3 +24,7 @@ test("workspace creation trims display names without changing the chosen address
     name: "墨 Design studio",
   });
 });
+
+test("creation rejects impersonating another owner", () => {
+  assert.equal(createWorkspaceSchema.safeParse({ ...create, ownerUserId: id }).success, false);
+});
