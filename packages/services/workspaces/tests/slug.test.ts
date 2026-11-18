@@ -29,3 +29,7 @@ test("preserve numeric workspace names", () => {
 test("trim separators at the address boundary", () => {
   assert.equal(suggestWorkspaceSlug(" -- Studio -- "), "studio");
 });
+
+test("handle an empty workspace title", () => {
+  assert.equal(suggestWorkspaceSlug(""), "");
+});
