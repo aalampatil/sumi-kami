@@ -114,3 +114,10 @@ test("settings reject rewriting workspace history", () => {
     false,
   );
 });
+
+test("settings reject implicitly clearing retention", () => {
+  assert.equal(
+    updateWorkspaceSchema.safeParse({ ...update, retentionDays: undefined }).success,
+    false,
+  );
+});
