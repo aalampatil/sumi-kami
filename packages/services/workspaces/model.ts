@@ -24,3 +24,10 @@ export const createWorkspaceSchema = z.strictObject({
 export type CreateWorkspaceInput = z.infer<typeof createWorkspaceSchema>;
 
 export const workspaceIdSchema = z.strictObject({ workspaceId: z.uuid() });
+
+export const updateWorkspaceSchema = z.strictObject({
+  workspaceId: z.uuid(),
+  name: workspaceNameSchema,
+  retentionDays: workspaceRetentionSchema,
+});
+export type UpdateWorkspaceInput = z.infer<typeof updateWorkspaceSchema>;
