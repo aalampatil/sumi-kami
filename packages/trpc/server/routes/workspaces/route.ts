@@ -23,4 +23,18 @@ export const workspacesRouter = router({
     .mutation(({ ctx, input }) =>
       workspaceOperation(() => workspaceService.create(ctx.user.id, input)),
     ),
+  get: protectedProcedure
+    .meta({
+      openapi: {
+        method: "GET",
+        path: "/workspaces/{workspaceId}",
+        tags: ["Workspaces"],
+        protect: true,
+      },
+    })
+    .input(workspaceIdSchema)
+    .output(workspaceSummarySchema)
+    .query(({ ctx, input }) =>
+      workspaceOperation(() => workspaceService.get(ctx.user.id, input.workspaceId)),
+    ),
 });
