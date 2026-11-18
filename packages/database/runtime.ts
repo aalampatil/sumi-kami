@@ -1,10 +1,11 @@
+import type { TenantDatabase } from "./runtime-security";
 import { Pool } from "pg";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { tenantConnectionString } from "./runtime-config";
 
-let runtime: ReturnType<typeof drizzle> | undefined;
+let runtime: TenantDatabase | undefined;
 let pool: Pool | undefined;
-export function getTenantDatabase(): ReturnType<typeof drizzle> {
+export function getTenantDatabase(): TenantDatabase {
   if (!runtime) {
     pool = new Pool({
       connectionString: tenantConnectionString({
