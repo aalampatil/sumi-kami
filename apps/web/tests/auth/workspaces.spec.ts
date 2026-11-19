@@ -46,6 +46,7 @@ test("a creator manages a workspace while a second account remains isolated", as
   const workspaceUrl = page.url();
   const id = workspaceUrl.split("/").at(-1)!;
   await expect(page.getByRole("heading", { name: name + " team", exact: true })).toBeVisible();
+  await page.getByRole("link", { name: "Settings", exact: true }).click();
   await page.getByLabel("Workspace name").fill(name + " renamed");
   await page.getByLabel("Response retention (days)").fill("30");
   await page.getByRole("button", { name: "Save settings", exact: true }).click();

@@ -16,8 +16,8 @@ test("anonymous pages stay public and the API rejects absent/invalid/legacy cred
 }) => {
   await setupClerkTestingToken({ page });
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "Sumikami", exact: true })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Sign in", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Make every");
+  await expect(page.getByRole("link", { name: "Sign in", exact: true })).toBeVisible();
   expect((await request.get(`${api}/health`)).status()).toBe(200);
   const credentialCases: Record<string, string>[] = [
     {},

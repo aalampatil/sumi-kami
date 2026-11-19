@@ -10,6 +10,7 @@ export default defineConfig({
     baseURL: "http://localhost:3001",
     screenshot: "only-on-failure",
     trace: "off",
+    actionTimeout: 30000,
   },
   projects: [
     { name: "setup", testMatch: /global\.setup\.ts/ },

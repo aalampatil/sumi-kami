@@ -11,3 +11,8 @@ export async function createServerApi() {
     links: [createTRPCHttpBatchClientClient({ getToken })],
   });
 }
+export function createPublicServerApi() {
+  return createTRPCProxyClient<ServerRouter>({
+    links: [createTRPCHttpBatchClientClient({ anonymous: true })],
+  });
+}

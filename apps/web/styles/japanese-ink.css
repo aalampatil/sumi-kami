@@ -1,0 +1,326 @@
+/* Composition and material, separate from each form's resolved appearance colors. */
+:root {
+  --seal: #b74436;
+  --font-inter: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-editorial: "Noto Serif JP", "Yu Mincho", "Hiragino Mincho ProN", Georgia, serif;
+  --radius: 0.5rem;
+}
+.dark {
+  --seal: #e1947c;
+}
+body {
+  font-family: var(--font-inter);
+}
+.font-serif {
+  font-family: var(--font-editorial);
+  font-optical-sizing: auto;
+}
+.ink-site {
+  position: relative;
+  isolation: isolate;
+}
+.ink-site::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: url("/brand/washi-grain.svg");
+  opacity: 0.65;
+  mask-image: linear-gradient(90deg, #000, transparent 14%, transparent 86%, #000);
+}
+.ink-site > header {
+  background: color-mix(in srgb, var(--background) 95%, transparent);
+}
+.ink-site h1,
+.ink-site h2 {
+  text-wrap: balance;
+}
+.ink-site nav a {
+  text-underline-offset: 6px;
+}
+.ink-site nav a:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--seal);
+}
+.ink-hero {
+  position: relative;
+}
+.ink-hero > div {
+  min-width: 0;
+}
+.ink-hero::after {
+  content: "";
+  position: absolute;
+  left: 2rem;
+  bottom: 0;
+  width: 4rem;
+  height: 3px;
+  background: var(--seal);
+  clip-path: polygon(0 25%, 89% 0, 100% 60%, 5% 100%);
+}
+.ink-hero-art {
+  position: relative;
+}
+.ink-hero-art .hero-enso {
+  position: absolute;
+  width: 74%;
+  top: -3%;
+  right: -3%;
+  color: var(--foreground);
+  opacity: 0.13;
+}
+.ink-hero-art .hero-landscape {
+  position: absolute;
+  bottom: -8%;
+  left: -4%;
+  width: 80%;
+  opacity: 0.6;
+}
+.ink-hero-art .hero-paper {
+  box-shadow:
+    1px 2px 0 #1717140a,
+    9px 12px 0 #17171406;
+  border-radius: 2px;
+}
+.ink-product [data-slot="card"],
+.ink-product [data-slot="dialog-content"] {
+  box-shadow: 0 6px 24px rgb(23 23 20 / 4%);
+}
+.ink-product .product-sidebar {
+  position: relative;
+}
+@media (min-width: 1024px) {
+  .ink-product .product-sidebar::after {
+    content: "";
+    position: absolute;
+    bottom: 3rem;
+    left: 2.5rem;
+    width: 2.5rem;
+    height: 2px;
+    background: var(--seal);
+  }
+}
+.ink-product nav[aria-label="Workspace"] a[aria-current="page"] {
+  border-color: var(--seal);
+}
+.ink-form {
+  position: relative;
+  isolation: isolate;
+}
+.ink-form::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: url("/brand/washi-grain.svg");
+  mask-image: linear-gradient(90deg, #000, transparent 15%, transparent 85%, #000);
+  opacity: 0.6;
+}
+.ink-form .form-sheet {
+  position: relative;
+  max-width: 760px;
+}
+.ink-form:not(.form-preview) .form-sheet {
+  padding-top: clamp(2rem, 5vw, 4rem);
+  padding-bottom: 3rem;
+}
+.ink-form .form-brand {
+  font-family: var(--font-inter);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.ink-form .form-masthead {
+  border-bottom: 1px solid color-mix(in srgb, var(--form-border) 50%, transparent);
+  margin-bottom: 2.75rem;
+}
+.ink-form .form-introduction {
+  position: relative;
+  padding-right: 2.5rem;
+}
+.ink-form .form-introduction > .form-enso {
+  position: absolute;
+  right: -0.25rem;
+  top: -0.5rem;
+  width: 3.25rem;
+  color: var(--form-text);
+  opacity: 0.3;
+}
+.ink-form .form-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 1.5rem;
+  color: var(--form-muted);
+  font-size: 0.65rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+.ink-form .form-eyebrow::before {
+  content: "";
+  height: 1px;
+  width: 1.5rem;
+  background: var(--form-accent);
+}
+.ink-form .form-title {
+  font-size: clamp(2.25rem, 5.4vw, 3.5rem);
+  line-height: 1.3;
+  letter-spacing: -0.045em;
+  font-weight: 400;
+}
+.ink-form .form-title.font-serif {
+  font-family: var(--font-editorial);
+}
+.ink-form .form-description {
+  max-width: 58ch;
+}
+.ink-form .form-progress {
+  width: 100%;
+  height: 2px;
+  appearance: none;
+  border: 0;
+  background: color-mix(in srgb, var(--form-border) 25%, transparent);
+}
+.ink-form .form-progress::-webkit-progress-bar {
+  background: color-mix(in srgb, var(--form-border) 25%, transparent);
+}
+.ink-form .form-progress::-webkit-progress-value {
+  background: var(--form-text);
+  transition: width 180ms ease;
+}
+.ink-form .form-progress::-moz-progress-bar {
+  background: var(--form-text);
+}
+.ink-form .form-question {
+  padding: 1.5rem 0 0.5rem;
+  border-top: 1px solid color-mix(in srgb, var(--form-border) 38%, transparent);
+}
+.ink-form .question-list {
+  gap: 2rem;
+  display: flex;
+  flex-direction: column;
+}
+.ink-form .question-label {
+  font-size: 1.125rem;
+  font-weight: 500;
+  line-height: 1.65;
+}
+.ink-form .question-number {
+  display: inline-flex;
+  margin-right: 0.9rem;
+  vertical-align: middle;
+  color: var(--form-accent);
+  font-size: 0.65rem;
+}
+.ink-form .form-control {
+  border: 0;
+  border-bottom: 1px solid var(--form-border);
+  border-radius: 2px;
+  box-shadow: none;
+  background: var(--form-surface);
+  transition:
+    border-color 140ms ease,
+    background-color 140ms ease;
+}
+.ink-form .form-control:hover {
+  border-color: var(--form-text);
+}
+.ink-form .form-control:focus-visible {
+  outline: 2px solid var(--form-accent);
+  outline-offset: 3px;
+  border-color: var(--form-text);
+}
+.ink-form .form-control[aria-invalid="true"] {
+  border-bottom: 2px solid var(--form-accent);
+}
+.ink-form .choice-card {
+  border-radius: 3px;
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease;
+}
+.ink-form .choice-card:has(input:checked) {
+  border-color: var(--form-text);
+  background: color-mix(in srgb, var(--form-text) 5%, var(--form-surface));
+  box-shadow: inset 3px 0 var(--form-text);
+}
+.ink-form .form-submit {
+  border-radius: 3px;
+  background: var(--form-text);
+  color: var(--form-bg);
+  transition:
+    background-color 140ms ease,
+    transform 140ms ease;
+}
+.ink-form .form-submit:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--form-text) 87%, var(--form-bg));
+}
+.ink-form .form-submit:active:not(:disabled) {
+  transform: translateY(1px);
+}
+.ink-form .form-completion-mark {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 6rem;
+  height: 6rem;
+  margin-inline: auto;
+  color: var(--form-text);
+  background: none;
+}
+.ink-form .form-completion-mark > .completion-enso {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.ink-form .form-completion-mark > .completion-check {
+  width: 1.5rem;
+  color: var(--form-accent);
+}
+.ink-form .form-completion h1 {
+  font-weight: 400;
+  line-height: 1.4;
+}
+.ink-reveal {
+  animation: ink-appear 220ms ease-out both;
+}
+@keyframes ink-appear {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (max-width: 640px) {
+  .ink-hero-art .hero-enso {
+    right: 0;
+  }
+  .ink-form .form-introduction {
+    padding-right: 1.75rem;
+  }
+  .ink-form .form-introduction > .form-enso {
+    width: 2.5rem;
+    right: -0.25rem;
+  }
+  .ink-form .question-label {
+    font-size: 1rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ink-reveal {
+    animation: none;
+  }
+  .ink-form *,
+  .ink-site * {
+    transition-duration: 0.01ms !important;
+  }
+  .ink-form .form-submit:active:not(:disabled) {
+    transform: none;
+  }
+}
