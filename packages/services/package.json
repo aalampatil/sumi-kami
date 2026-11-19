@@ -10,6 +10,7 @@
     "test:workspaces:unit": "tsx --test workspaces/tests/*.test.ts",
     "test:workspaces:db": "tsx --test workspaces/integration/*.test.ts",
     "test:forms:db": "tsx --test forms/integration/*.test.ts",
+    "test:forms:unit": "tsx --test forms/tests/*.test.ts",
     "test:members:db": "tsx --test members/integration/*.test.ts"
   },
   "devDependencies": {

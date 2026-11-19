@@ -269,6 +269,63 @@ test("typed answers preserve exact decimals, selections, false, dates and JSON",
   assert.equal(answers.find((answer) => answer.fieldKey === date.key)!.text, "2026-11-19");
   assert.equal(answers.find((answer) => answer.fieldKey === json.key)!.text, '{"message":"hello"}');
 });
+test("optional whitespace answers are omitted without losing zero, false, or meaningful text", async () => {
+  const f = getFixture(),
+    form = await create();
+  const blank = [
+    "SHORT_TEXT",
+    "LONG_TEXT",
+    "EMAIL",
+    "NUMBER",
+    "RATING",
+    "SINGLE_SELECT",
+    "DROPDOWN",
+    "DATE",
+    "DATETIME",
+    "STRUCTURED",
+  ].map((type) => newField(type as Parameters<typeof newField>[0]));
+  const number = newField("NUMBER"),
+    checkbox = newField("CHECKBOX"),
+    text = newField();
+  form.definition.steps[0]!.fields = [...blank, number, checkbox, text];
+  const saved = await forms.save(f.users.owner, {
+    workspaceId: f.workspace.id,
+    formId: form.id,
+    expectedRevision: form.revision,
+    definition: form.definition,
+  });
+  const published = await forms.publish(f.users.owner, {
+    workspaceId: f.workspace.id,
+    formId: form.id,
+    expectedRevision: saved.revision,
+  });
+  const input = {
+    slug: form.slug,
+    versionId: published.versionId,
+    idempotencyKey: randomUUID(),
+    answers: [
+      ...blank.map((field) => ({ fieldKey: field.key, value: " \t\n " })),
+      { fieldKey: number.key, value: "0" },
+      { fieldKey: checkbox.key, value: false },
+      { fieldKey: text.key, value: "  Keep these spaces  " },
+    ],
+  };
+  const receipt = await publicForms.submit(input);
+  assert.equal((await publicForms.submit(input)).id, receipt.id);
+  const page = await responses.list(f.users.owner, {
+    workspaceId: f.workspace.id,
+    formId: form.id,
+    limit: 20,
+  });
+  const answers = page.items[0]!.answers;
+  assert.equal(answers.length, 3);
+  assert.equal(answers.find((answer) => answer.fieldKey === number.key)!.text, "0");
+  assert.equal(answers.find((answer) => answer.fieldKey === checkbox.key)!.text, "No");
+  assert.equal(
+    answers.find((answer) => answer.fieldKey === text.key)!.text,
+    "  Keep these spaces  ",
+  );
+});
 test("closed and archived forms reject new intake while existing receipts remain stable", async () => {
   const f = getFixture(),
     form = await create(),

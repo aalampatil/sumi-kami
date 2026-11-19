@@ -1,6 +1,6 @@
 import { createHash, randomUUID } from "node:crypto";
-import { mkdir, readFile, unlink, writeFile } from "node:fs/promises";
-import { resolve, join } from "node:path";
+import { mkdir, open, readFile, unlink } from "node:fs/promises";
+import { isAbsolute, resolve, join } from "node:path";
 import { FormError } from "./errors";
 
 export interface IncomingUpload {
@@ -9,6 +9,7 @@ export interface IncomingUpload {
   bytes: Buffer;
 }
 export interface PrivateFileStore {
+  /** A rejected write must leave no new object. Existing keys must never be overwritten. */
   put(key: string, bytes: Buffer): Promise<void>;
   read(key: string): Promise<Buffer>;
   remove(key: string): Promise<void>;
@@ -19,15 +20,31 @@ export class LocalPrivateFileStore implements PrivateFileStore {
   private location(key: string) {
     if (!/^[a-f0-9-]{36}$/.test(key)) throw new Error("Invalid private object key.");
     const configured = process.env.UPLOAD_DIRECTORY;
-    if (!configured && ["production", "prod"].includes(process.env.NODE_ENV ?? ""))
-      throw new Error("UPLOAD_DIRECTORY is required for attachments in production.");
+    if (
+      ["production", "prod"].includes(process.env.NODE_ENV ?? "") &&
+      (!configured || !isAbsolute(configured))
+    )
+      throw new Error("An absolute UPLOAD_DIRECTORY is required for attachments in production.");
     const directory = resolve(configured || join(process.cwd(), ".data", "uploads"));
     return { directory, file: join(directory, key) };
   }
   async put(key: string, bytes: Buffer) {
     const { directory, file } = this.location(key);
     await mkdir(directory, { recursive: true, mode: 0o700 });
-    await writeFile(file, bytes, { flag: "wx", mode: 0o600 });
+    const handle = await open(file, "wx", 0o600);
+    try {
+      await handle.writeFile(bytes);
+      await handle.close();
+    } catch (error) {
+      await handle.close().catch(() => undefined);
+      await unlink(file).catch((cleanupError) => {
+        if (cleanupError.code !== "ENOENT")
+          console.error(
+            "Private attachment write cleanup failed; reconcile private storage with submission_files.",
+          );
+      });
+      throw error;
+    }
   }
   async read(key: string) {
     return readFile(this.location(key).file);

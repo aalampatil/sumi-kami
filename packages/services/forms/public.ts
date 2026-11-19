@@ -19,7 +19,7 @@ import {
   type Answers,
   type FormDefinition,
 } from "@repo/form-core/definition";
-import { formPath, validateAnswers } from "@repo/form-core/answers";
+import { formPath, isAnswered, validateAnswers } from "@repo/form-core/answers";
 import { readDefinition } from "./persistence";
 import { FormError, missingForm } from "./errors";
 import {
@@ -272,12 +272,7 @@ export class PublicFormService {
             );
           for (const field of path.fields) {
             const value = path.answers[field.key];
-            if (
-              value === undefined ||
-              (value === "" && !["SHORT_TEXT", "LONG_TEXT"].includes(field.type)) ||
-              (Array.isArray(value) && !value.length)
-            )
-              continue;
+            if (!isAnswered(value)) continue;
             const persisted = storedFields.find((row) => row.key === field.key)!,
               answerId = randomUUID();
             const common = {
