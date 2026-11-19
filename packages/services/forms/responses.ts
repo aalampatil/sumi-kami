@@ -16,6 +16,7 @@ import { FormError } from "./errors";
 import { formScopeSchema, responsesInputSchema, type ResponseItem } from "./model";
 import { z } from "zod";
 import { LocalPrivateFileStore, type PrivateFileStore } from "./files";
+import { responseCsv } from "./csv";
 
 export class ResponseService {
   constructor(
@@ -74,7 +75,16 @@ export class ResponseService {
       },
     );
   }
-  async list(actorUserId: string, request: ReturnType<typeof responsesInputSchema.parse>) {
+  async exportPage(actorUserId: string, request: ReturnType<typeof responsesInputSchema.parse>) {
+    const input = responsesInputSchema.parse(request),
+      page = await this.list(actorUserId, input, "responses:export");
+    return { csv: responseCsv(page.items), filename: `responses-${input.formId}.csv` };
+  }
+  async list(
+    actorUserId: string,
+    request: ReturnType<typeof responsesInputSchema.parse>,
+    capability: "responses:read" | "responses:export" = "responses:read",
+  ) {
     const input = responsesInputSchema.parse(request);
     let cursor: { time: string; id: string } | undefined;
     if (input.before) {
@@ -91,7 +101,7 @@ export class ResponseService {
       this.database(),
       actorUserId,
       input.workspaceId,
-      "responses:read",
+      capability,
       async (transaction) => {
         await lockedForm(transaction, input.workspaceId, input.formId, "share");
         const records = await transaction

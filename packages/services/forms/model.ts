@@ -46,6 +46,7 @@ export const editorSchema = z.strictObject({
   archived: z.boolean(),
   canEdit: z.boolean(),
   canPublish: z.boolean(),
+  canExport: z.boolean(),
   versionId: z.uuid(),
   versionNumber: z.number().int(),
   status: z.enum(["DRAFT", "PUBLISHED"]),
@@ -109,3 +110,16 @@ export const responsePageSchema = z.strictObject({
 });
 export type ResponseItem = z.infer<typeof responseItemSchema>;
 export const archiveFormSchema = formScopeSchema.extend({ archived: z.boolean() });
+export const exportPageSchema = z.strictObject({ csv: z.string(), filename: z.string() });
+export const responseSummarySchema = z.strictObject({
+  total: z.number().int().nonnegative(),
+  recent: z.number().int().nonnegative(),
+  daily: z.array(z.strictObject({ date: z.string(), count: z.number().int().nonnegative() })),
+  versions: z.array(
+    z.strictObject({
+      versionNumber: z.number().int(),
+      title: z.string(),
+      count: z.number().int().nonnegative(),
+    }),
+  ),
+});

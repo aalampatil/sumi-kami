@@ -10,13 +10,42 @@ import {
   formScopeSchema,
   responsePageSchema,
   responsesInputSchema,
+  exportPageSchema,
+  responseSummarySchema,
 } from "@repo/services/forms/model";
+import { FormReportingService } from "@repo/services/forms/reporting";
 import { formService, responseService } from "../../services";
 import { protectedProcedure, router } from "../../trpc";
 import { formOperation } from "./errors";
 const base = "/workspaces/{workspaceId}/forms";
 const formRoute = (suffix: string): `/${string}` => `${base}${suffix}`;
 export const formsRouter = router({
+  exportPage: protectedProcedure
+    .meta({
+      openapi: {
+        method: "GET",
+        path: formRoute("/{formId}/responses/export"),
+        tags: ["Responses"],
+        protect: true,
+      },
+    })
+    .input(responsesInputSchema)
+    .output(exportPageSchema)
+    .query(({ ctx, input }) => formOperation(() => responseService.exportPage(ctx.user.id, input))),
+  summary: protectedProcedure
+    .meta({
+      openapi: {
+        method: "GET",
+        path: formRoute("/{formId}/responses/summary"),
+        tags: ["Responses"],
+        protect: true,
+      },
+    })
+    .input(formScopeSchema)
+    .output(responseSummarySchema)
+    .query(({ ctx, input }) =>
+      formOperation(() => new FormReportingService().summary(ctx.user.id, input)),
+    ),
   list: protectedProcedure
     .meta({ openapi: { method: "GET", path: base, tags: ["Forms"], protect: true } })
     .input(formListSchema)

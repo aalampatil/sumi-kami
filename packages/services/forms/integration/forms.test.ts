@@ -542,3 +542,57 @@ test("a file storage failure rolls back answer rows and removes newly written by
     "0",
   );
 });
+test("exports require export permissions, escape spreadsheet formulas, and keep version context", async () => {
+  const f = getFixture(),
+    form = await create(),
+    published = await forms.publish(f.users.owner, {
+      workspaceId: f.workspace.id,
+      formId: form.id,
+      expectedRevision: form.revision,
+    });
+  await publicForms.submit({
+    slug: form.slug,
+    versionId: published.versionId,
+    idempotencyKey: randomUUID(),
+    answers: [
+      {
+        fieldKey: form.definition.steps[0]!.fields[0]!.key,
+        value: '=HYPERLINK("https://example.invalid")',
+      },
+    ],
+  });
+  const input = { workspaceId: f.workspace.id, formId: form.id, limit: 20 };
+  await assert.rejects(
+    () => responses.exportPage(f.users.viewer, input),
+    (error) => error instanceof WorkspaceAccessError && error.reason === "FORBIDDEN",
+  );
+  const exported = await responses.exportPage(f.users.editor, input);
+  assert.match(exported.csv, /'=HYPERLINK/);
+  assert.ok(exported.csv.includes(published.versionId));
+  assert.ok(exported.csv.includes("Question key"));
+  const reporting = new (await import("../reporting")).FormReportingService(() => f.database),
+    summary = await reporting.summary(f.users.viewer, {
+      workspaceId: input.workspaceId,
+      formId: input.formId,
+    });
+  assert.equal(summary.total, 1);
+  assert.equal(summary.recent, 1);
+  assert.equal(
+    summary.daily.reduce((sum, day) => sum + day.count, 0),
+    1,
+  );
+  assert.equal(summary.versions[0]!.versionNumber, 1);
+  await f.pool.query("UPDATE builder.form_submissions SET expires_at=started_at WHERE form_id=$1", [
+    form.id,
+  ]);
+  assert.equal(
+    (
+      await reporting.summary(f.users.owner, {
+        workspaceId: input.workspaceId,
+        formId: input.formId,
+      })
+    ).total,
+    0,
+  );
+  assert.equal((await responses.list(f.users.owner, input)).items.length, 0);
+});

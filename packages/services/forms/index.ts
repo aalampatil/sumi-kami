@@ -94,6 +94,7 @@ async function editor(
     archived: Boolean(form.archivedAt),
     canEdit: hasWorkspaceCapability(role, "forms:edit"),
     canPublish: hasWorkspaceCapability(role, "forms:publish"),
+    canExport: hasWorkspaceCapability(role, "responses:export"),
     versionId: version.id,
     versionNumber: version.versionNumber,
     status: version.status,
