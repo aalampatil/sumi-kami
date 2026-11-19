@@ -4,12 +4,13 @@ import {
   allFields,
   compareDecimal,
   conditionSchema,
+  conditionReferences,
   newDefinition,
   newField,
   publicationIssues,
 } from "../definition";
 import { formPath, validateAnswers } from "../answers";
-import { appearancePresets, contrast, customAppearance } from "../appearance";
+import { appearancePresets, contrast, customAppearance, focusInk } from "../appearance";
 
 test("a new definition is publishable and holds a resolved appearance snapshot", () => {
   const definition = newDefinition("Feedback");
@@ -108,6 +109,27 @@ test("nested conditions have a bounded complexity budget", () => {
     conditionSchema.safeParse({ formatVersion: 1, ...(expression as object) }).success,
     false,
   );
+});
+test("condition references follow nested questions without confusing literal comparison values", () => {
+  const condition = {
+    all: [
+      { fieldKey: "name", operator: "equals" as const, value: "unrelated_key" },
+      { any: [{ not: { fieldKey: "consent", operator: "is_answered" as const } }] },
+    ],
+  };
+  assert.equal(conditionReferences(condition, "name"), true);
+  assert.equal(conditionReferences(condition, "consent"), true);
+  assert.equal(conditionReferences(condition, "unrelated_key"), false);
+});
+test("keyboard focus contrasts with form and control backgrounds even with a matching accent", () => {
+  for (const appearance of [
+    ...Object.values(appearancePresets),
+    customAppearance("#FFFFFF", "#FFFFFF"),
+    customAppearance("#171714", "#171714"),
+  ]) {
+    assert.ok(contrast(focusInk(appearance), appearance.background) >= 3);
+    assert.ok(contrast(focusInk(appearance), appearance.surface) >= 3);
+  }
 });
 test("structured answers reject null and excessive nesting", () => {
   const definition = newDefinition("JSON"),

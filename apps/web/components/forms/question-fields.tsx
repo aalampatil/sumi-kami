@@ -2,7 +2,7 @@
 import type { Answers, AnswerValue, FieldIssue, FormField } from "@repo/form-core/definition";
 
 const control =
-  "form-control min-h-12 w-full rounded-lg border border-[var(--form-border)] bg-[var(--form-surface)] px-4 py-3 text-[var(--form-text)] outline-offset-4 focus-visible:outline-[var(--form-accent)] disabled:opacity-60";
+  "form-control min-h-12 w-full rounded-lg border border-[var(--form-border)] bg-[var(--form-surface)] px-4 py-3 text-[var(--form-text)] outline-offset-4 focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-[var(--form-focus)] disabled:opacity-60";
 type Props = {
   fields: FormField[];
   values: Answers;
@@ -52,7 +52,7 @@ export function QuestionFields({
             </span>
             {field.label}
             {field.required ? (
-              <span className="ml-1 text-[var(--form-accent)]" aria-label="required">
+              <span className="ml-1 text-[var(--form-focus)]" aria-label="required">
                 *
               </span>
             ) : null}
@@ -81,7 +81,7 @@ export function QuestionFields({
               <input
                 {...common}
                 type="checkbox"
-                className="mt-1 size-5 shrink-0 accent-[var(--form-accent)]"
+                className="mt-1 size-5 shrink-0 accent-[var(--form-focus)] outline-offset-4 focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-[var(--form-focus)]"
                 checked={value === true}
                 onChange={(event) => onChange(field.key, event.target.checked)}
               />
@@ -108,7 +108,7 @@ export function QuestionFields({
                       disabled={disabled}
                       aria-describedby={described}
                       aria-invalid={Boolean(error)}
-                      className="size-5 shrink-0 accent-[var(--form-accent)]"
+                      className="size-5 shrink-0 accent-[var(--form-focus)] outline-offset-4 focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-[var(--form-focus)]"
                       onChange={() =>
                         onChange(
                           field.key,

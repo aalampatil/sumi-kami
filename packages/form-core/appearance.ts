@@ -65,6 +65,13 @@ export function contrast(first: string, second: string): number {
 export function readableInk(background: string): string {
   return contrast(background, "#171714") >= contrast(background, "#FCFAF6") ? "#171714" : "#FCFAF6";
 }
+/** Focus must remain visible even when a custom accent matches the form background. */
+export function focusInk(appearance: FormAppearance): string {
+  return contrast(appearance.accent, appearance.background) >= 3 &&
+    contrast(appearance.accent, appearance.surface) >= 3
+    ? appearance.accent
+    : appearance.text;
+}
 export function customAppearance(background: string, accent: string): FormAppearance {
   hex.parse(background);
   hex.parse(accent);

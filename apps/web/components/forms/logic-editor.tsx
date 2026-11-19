@@ -1,9 +1,28 @@
 "use client";
+import { useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
-import { allFields, type FormDefinition, type FormRule } from "@repo/form-core/definition";
+import {
+  allFields,
+  conditionReferences,
+  conditionSchema,
+  type ConditionNode,
+  type FormDefinition,
+  type FormRule,
+} from "@repo/form-core/definition";
 import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
-const select = "min-h-11 w-full rounded-md border border-input bg-card px-3 text-sm";
+import { ConditionEditor, logicSelect } from "./condition-editor";
+
+function expression(condition: FormRule["condition"]): ConditionNode {
+  if ("all" in condition) return { all: condition.all };
+  if ("any" in condition) return { any: condition.any };
+  if ("not" in condition) return { not: condition.not };
+  return {
+    fieldKey: condition.fieldKey,
+    operator: condition.operator,
+    ...(condition.value === undefined ? {} : { value: condition.value }),
+  };
+}
+
 export function LogicEditor({
   definition,
   onChange,
@@ -13,27 +32,45 @@ export function LogicEditor({
   onChange: (definition: FormDefinition) => void;
   disabled: boolean;
 }) {
-  const fields = allFields(definition),
-    patch = (index: number, value: Partial<FormRule>) =>
-      onChange({
-        ...definition,
-        rules: definition.rules.map((rule, position) =>
-          position === index ? { ...rule, ...value } : rule,
-        ),
-      });
+  const [error, setError] = useState("");
+  const fields = allFields(definition);
+  const patch = (index: number, value: Partial<FormRule>) => {
+    setError("");
+    onChange({
+      ...definition,
+      rules: definition.rules.map((rule, position) =>
+        position === index ? { ...rule, ...value } : rule,
+      ),
+    });
+  };
   return (
-    <fieldset disabled={disabled} className="space-y-4">
+    <fieldset disabled={disabled} className="min-w-0 space-y-4">
       <legend className="mb-3 text-sm font-semibold">Conditional logic</legend>
       <p className="text-xs leading-5 text-muted-foreground">
-        Use earlier answers to show or hide later questions, skip ahead, or end the form.
+        Combine earlier answers with AND, OR, and NOT to show or hide later questions, skip ahead,
+        or end the form.
       </p>
+      {error ? (
+        <p role="alert" className="text-xs text-destructive">
+          {error}
+        </p>
+      ) : null}
       {definition.rules.map((rule, index) => {
-        const leaf = "fieldKey" in rule.condition ? rule.condition : null,
-          source = fields.find((field) => field.key === rule.sourceFieldKey);
+        const sourceIndex = fields.findIndex((field) => field.key === rule.sourceFieldKey);
+        const lastConditionIndex = fields.reduce(
+          (latest, field, position) =>
+            conditionReferences(rule.condition, field.key) ? position : latest,
+          -1,
+        );
+        const sourceStep = definition.steps.findIndex((step) =>
+          step.fields.some((field) => field.key === rule.sourceFieldKey),
+        );
+        const laterFields = fields.slice(sourceIndex + 1),
+          laterSteps = definition.steps.slice(sourceStep + 1);
         return (
           <section
             key={index}
-            className="space-y-3 rounded-lg border p-3"
+            className="min-w-0 space-y-3 rounded-lg border p-3"
             aria-label={"Rule " + (index + 1)}
           >
             <div className="flex items-center justify-between">
@@ -53,153 +90,90 @@ export function LogicEditor({
                 <Trash2 className="size-4" aria-hidden="true" />
               </Button>
             </div>
-            {leaf ? (
-              <>
-                <label className="block space-y-1 text-xs">
-                  If this question
-                  <select
-                    className={select}
-                    value={rule.sourceFieldKey}
-                    onChange={(event) =>
-                      patch(index, {
-                        sourceFieldKey: event.target.value,
-                        condition: {
-                          formatVersion: 1,
-                          fieldKey: event.target.value,
-                          operator: "is_answered",
-                        },
-                      })
-                    }
-                  >
-                    {fields.map((field) => (
-                      <option value={field.key} key={field.key}>
-                        {field.label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="block space-y-1 text-xs">
-                  Condition
-                  <select
-                    className={select}
-                    value={leaf.operator}
-                    onChange={(event) =>
-                      patch(index, {
-                        condition: {
-                          formatVersion: 1,
-                          fieldKey: rule.sourceFieldKey,
-                          operator: event.target.value as typeof leaf.operator,
-                          ...(event.target.value === "is_answered"
-                            ? {}
-                            : {
-                                value:
-                                  source?.type === "CHECKBOX"
-                                    ? true
-                                    : (source?.options[0]?.key ?? ""),
-                              }),
-                        },
-                      })
-                    }
-                  >
-                    <option value="is_answered">Is answered</option>
-                    <option value="equals">Equals</option>
-                    <option value="not_equals">Does not equal</option>
-                    {["NUMBER", "RATING"].includes(source?.type ?? "") ? (
-                      <>
-                        <option value="greater_than">Is greater than</option>
-                        <option value="less_than">Is less than</option>
-                      </>
-                    ) : null}
-                    {["SHORT_TEXT", "LONG_TEXT", "EMAIL", "MULTI_SELECT"].includes(
-                      source?.type ?? "",
-                    ) ? (
-                      <option value="contains">Contains</option>
-                    ) : null}
-                  </select>
-                </label>
-                {leaf.operator !== "is_answered" ? (
-                  <label className="block space-y-1 text-xs">
-                    Comparison
-                    {source?.type === "CHECKBOX" ? (
-                      <select
-                        className={select}
-                        value={leaf.value === true ? "true" : "false"}
-                        onChange={(event) =>
-                          patch(index, {
-                            condition: {
-                              ...leaf,
-                              formatVersion: 1,
-                              value: event.target.value === "true",
-                            },
-                          })
-                        }
-                      >
-                        <option value="true">Yes</option>
-                        <option value="false">No</option>
-                      </select>
-                    ) : source?.options.length ? (
-                      <select
-                        className={select}
-                        value={typeof leaf.value === "string" ? leaf.value : ""}
-                        onChange={(event) =>
-                          patch(index, {
-                            condition: { ...leaf, formatVersion: 1, value: event.target.value },
-                          })
-                        }
-                      >
-                        {source.options.map((option) => (
-                          <option key={option.key} value={option.key}>
-                            {option.label}
-                          </option>
-                        ))}
-                      </select>
-                    ) : (
-                      <Input
-                        value={typeof leaf.value === "string" ? leaf.value : ""}
-                        onChange={(event) =>
-                          patch(index, {
-                            condition: { ...leaf, formatVersion: 1, value: event.target.value },
-                          })
-                        }
-                        className="min-h-11"
-                      />
-                    )}
-                  </label>
-                ) : null}
-              </>
-            ) : (
-              <p className="text-xs text-muted-foreground">
-                This rule uses a compound expression. It remains preserved; remove it to replace it
-                with a simpler rule.
-              </p>
-            )}
             <label className="block space-y-1 text-xs">
-              Then
+              When this question is reached
               <select
-                className={select}
-                value={rule.actionKind}
+                className={logicSelect}
+                value={rule.sourceFieldKey}
                 onChange={(event) => {
-                  const actionKind = event.target.value as FormRule["actionKind"];
+                  const sourceFieldKey = event.target.value;
                   const later = fields.slice(
-                    fields.findIndex((field) => field.key === rule.sourceFieldKey) + 1,
-                  )[0];
+                    fields.findIndex((field) => field.key === sourceFieldKey) + 1,
+                  );
+                  const steps = definition.steps.slice(
+                    definition.steps.findIndex((step) =>
+                      step.fields.some((field) => field.key === sourceFieldKey),
+                    ) + 1,
+                  );
+                  let actionKind = rule.actionKind;
+                  if (
+                    (["SHOW_FIELD", "HIDE_FIELD"].includes(actionKind) && !later.length) ||
+                    (actionKind === "GO_TO_STEP" && !steps.length)
+                  )
+                    actionKind = "END_FORM";
                   patch(index, {
+                    sourceFieldKey,
                     actionKind,
                     targetFieldKey: ["SHOW_FIELD", "HIDE_FIELD"].includes(actionKind)
-                      ? later?.key
+                      ? (later.find((field) => field.key === rule.targetFieldKey)?.key ??
+                        later[0]?.key)
                       : undefined,
                     targetStepKey:
                       actionKind === "GO_TO_STEP"
-                        ? definition.steps.find((step) =>
-                            step.fields.some((field) => field.key === rule.sourceFieldKey),
-                          )?.key
+                        ? (steps.find((step) => step.key === rule.targetStepKey)?.key ??
+                          steps[0]?.key)
                         : undefined,
                   });
                 }}
               >
-                <option value="SHOW_FIELD">Show question</option>
-                <option value="HIDE_FIELD">Hide question</option>
-                <option value="GO_TO_STEP">Go to step</option>
+                {fields.map((field, position) => (
+                  <option
+                    key={field.key}
+                    value={field.key}
+                    disabled={position < lastConditionIndex}
+                  >
+                    {field.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <ConditionEditor
+              condition={expression(rule.condition)}
+              fields={fields.slice(0, sourceIndex + 1)}
+              onChange={(node) => {
+                const parsed = conditionSchema.safeParse({ formatVersion: 1, ...node });
+                if (!parsed.success) {
+                  setError(parsed.error.issues[0]?.message ?? "Check the condition expression.");
+                  return;
+                }
+                patch(index, { condition: parsed.data });
+              }}
+            />
+            <label className="block space-y-1 text-xs">
+              Then
+              <select
+                className={logicSelect}
+                value={rule.actionKind}
+                onChange={(event) => {
+                  const actionKind = event.target.value as FormRule["actionKind"];
+                  patch(index, {
+                    actionKind,
+                    targetFieldKey: ["SHOW_FIELD", "HIDE_FIELD"].includes(actionKind)
+                      ? laterFields[0]?.key
+                      : undefined,
+                    targetStepKey: actionKind === "GO_TO_STEP" ? laterSteps[0]?.key : undefined,
+                  });
+                }}
+              >
+                <option value="SHOW_FIELD" disabled={!laterFields.length}>
+                  Show question
+                </option>
+                <option value="HIDE_FIELD" disabled={!laterFields.length}>
+                  Hide question
+                </option>
+                <option value="GO_TO_STEP" disabled={!laterSteps.length}>
+                  Go to step
+                </option>
                 <option value="END_FORM">End form</option>
               </select>
             </label>
@@ -207,30 +181,28 @@ export function LogicEditor({
               <label className="block space-y-1 text-xs">
                 Target question
                 <select
-                  className={select}
+                  className={logicSelect}
                   value={rule.targetFieldKey ?? ""}
                   onChange={(event) => patch(index, { targetFieldKey: event.target.value })}
                 >
                   <option value="">Choose a later question</option>
-                  {fields
-                    .slice(fields.findIndex((field) => field.key === rule.sourceFieldKey) + 1)
-                    .map((field) => (
-                      <option key={field.key} value={field.key}>
-                        {field.label}
-                      </option>
-                    ))}
+                  {laterFields.map((field) => (
+                    <option key={field.key} value={field.key}>
+                      {field.label}
+                    </option>
+                  ))}
                 </select>
               </label>
             ) : rule.actionKind === "GO_TO_STEP" ? (
               <label className="block space-y-1 text-xs">
                 Target step
                 <select
-                  className={select}
+                  className={logicSelect}
                   value={rule.targetStepKey ?? ""}
                   onChange={(event) => patch(index, { targetStepKey: event.target.value })}
                 >
                   <option value="">Choose a later step</option>
-                  {definition.steps.map((step) => (
+                  {laterSteps.map((step) => (
                     <option key={step.key} value={step.key}>
                       {step.title || step.key}
                     </option>
@@ -245,7 +217,7 @@ export function LogicEditor({
         type="button"
         variant="outline"
         className="min-h-11 w-full"
-        disabled={fields.length < 1 || definition.rules.length >= 50}
+        disabled={!fields.length || definition.rules.length >= 50}
         onClick={() => {
           const source = fields[0]!;
           onChange({

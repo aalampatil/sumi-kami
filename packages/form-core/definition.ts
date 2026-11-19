@@ -91,6 +91,14 @@ export type ConditionNode =
       operator: "equals" | "not_equals" | "greater_than" | "less_than" | "contains" | "is_answered";
       value?: ConditionValue;
     };
+export function conditionReferences(condition: ConditionNode, fieldKey: string): boolean {
+  if ("all" in condition)
+    return condition.all.some((child) => conditionReferences(child, fieldKey));
+  if ("any" in condition)
+    return condition.any.some((child) => conditionReferences(child, fieldKey));
+  if ("not" in condition) return conditionReferences(condition.not, fieldKey);
+  return condition.fieldKey === fieldKey;
+}
 const conditionValueSchema = z.union([
   z.string().max(20000),
   z.boolean(),

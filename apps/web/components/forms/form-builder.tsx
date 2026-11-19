@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -15,6 +15,7 @@ import {
 import { toast } from "sonner";
 import {
   allFields,
+  conditionReferences,
   definitionSchema,
   fieldLabels,
   fieldTypes,
@@ -32,6 +33,7 @@ import { FormSettings } from "./form-settings";
 import { LogicEditor } from "./logic-editor";
 import { QuestionInspector } from "./question-inspector";
 import { RespondentForm } from "./respondent-form";
+import { useUnsavedChanges } from "~/lib/use-unsaved-changes";
 
 export function FormBuilder({ initial }: { initial: FormEditor }) {
   const [current, setCurrent] = useState(initial),
@@ -56,15 +58,7 @@ export function FormBuilder({ initial }: { initial: FormEditor }) {
       save.isPending || publish.isPending || edit.isPending || close.isPending || archive.isPending,
     editable = current.canEdit && current.status === "DRAFT" && !current.archived;
   const field = allFields(definition).find((field) => field.key === selected);
-  useEffect(() => {
-    if (!dirty) return;
-    const leave = (event: BeforeUnloadEvent) => {
-      event.preventDefault();
-      event.returnValue = "";
-    };
-    window.addEventListener("beforeunload", leave);
-    return () => window.removeEventListener("beforeunload", leave);
-  }, [dirty]);
+  useUnsavedChanges(dirty);
   function change(next: FormDefinition) {
     setDefinition(next);
     setDirty(true);
@@ -161,7 +155,7 @@ export function FormBuilder({ initial }: { initial: FormEditor }) {
               (rule) =>
                 rule.sourceFieldKey !== oldKey &&
                 rule.targetFieldKey !== oldKey &&
-                !JSON.stringify(rule.condition).includes('"' + oldKey + '"'),
+                !conditionReferences(rule.condition, oldKey),
             ),
     });
     setSelected(next.key);
@@ -177,7 +171,7 @@ export function FormBuilder({ initial }: { initial: FormEditor }) {
         (rule) =>
           rule.sourceFieldKey !== key &&
           rule.targetFieldKey !== key &&
-          !JSON.stringify(rule.condition).includes('"' + key + '"'),
+          !conditionReferences(rule.condition, key),
       ),
     });
     if (selected === key) setSelected(null);
@@ -219,15 +213,11 @@ export function FormBuilder({ initial }: { initial: FormEditor }) {
           rule.targetStepKey !== key &&
           !removed.has(rule.sourceFieldKey) &&
           !removed.has(rule.targetFieldKey ?? "") &&
-          ![...removed].some((field) => JSON.stringify(rule.condition).includes('"' + field + '"')),
+          ![...removed].some((field) => conditionReferences(rule.condition, field)),
       ),
     });
     setSelected(null);
   }
-  const leave = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    if (dirty && !window.confirm("Leave without saving your latest changes?"))
-      event.preventDefault();
-  };
   return (
     <div>
       <div className="sticky top-0 z-20 -mx-2 border-b bg-background px-2 pb-5 pt-2">
@@ -235,7 +225,6 @@ export function FormBuilder({ initial }: { initial: FormEditor }) {
           <div className="min-w-0 flex-1">
             <Link
               href={"/dashboard/workspaces/" + initial.workspaceId}
-              onClick={leave}
               className="text-xs text-muted-foreground underline underline-offset-4"
             >
               {initial.workspaceName} / Forms
@@ -266,7 +255,6 @@ export function FormBuilder({ initial }: { initial: FormEditor }) {
                   initial.id +
                   "/responses"
                 }
-                onClick={leave}
               >
                 Responses
               </Link>
@@ -524,7 +512,9 @@ export function FormBuilder({ initial }: { initial: FormEditor }) {
                   type="button"
                   variant="ghost"
                   className="min-h-11 w-full justify-start text-xs"
-                  disabled={pending || allFields(definition).length >= 200}
+                  disabled={
+                    pending || step.fields.length >= 100 || allFields(definition).length >= 200
+                  }
                   onClick={() => addQuestion(step.key)}
                 >
                   <Plus className="size-3.5" aria-hidden="true" />

@@ -3,7 +3,7 @@ import { useRef, useState, type CSSProperties, type FormEvent } from "react";
 import { ArrowRight, Check, RotateCcw } from "lucide-react";
 import Link from "next/link";
 import type { Answers, FieldIssue, FormDefinition } from "@repo/form-core/definition";
-import { contrast } from "@repo/form-core/appearance";
+import { contrast, focusInk } from "@repo/form-core/appearance";
 import { formPath, isAnswered, validateAnswers } from "@repo/form-core/answers";
 import type { PublishedForm } from "@repo/trpc/client";
 import { trpc } from "~/trpc/client";
@@ -39,6 +39,7 @@ export function RespondentForm({
     "--form-text": appearance.text,
     "--form-muted": appearance.muted,
     "--form-accent": appearance.accent,
+    "--form-focus": focusInk(appearance),
     "--form-on-accent": appearance.onAccent,
     "--form-border": appearance.border,
     "--seal": appearance.accent,
@@ -255,7 +256,7 @@ export function RespondentForm({
                 <button
                   type="submit"
                   disabled={!hydrated || pending || !path.fields.length}
-                  className="form-submit inline-flex min-h-12 items-center justify-center gap-3 rounded-lg bg-[var(--form-accent)] px-6 py-3 text-sm font-medium text-[var(--form-on-accent)] disabled:opacity-60"
+                  className="form-submit inline-flex min-h-12 items-center justify-center gap-3 rounded-lg bg-[var(--form-accent)] px-6 py-3 text-sm font-medium text-[var(--form-on-accent)] outline-offset-4 focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-[var(--form-focus)] disabled:opacity-60"
                 >
                   {pending ? "Submitting…" : definition.settings.submitLabel}
                   <ArrowRight className="size-4" aria-hidden="true" />

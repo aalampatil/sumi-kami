@@ -16,8 +16,11 @@ body {
   font-optical-sizing: auto;
 }
 .rating-option:has(input:focus-visible) {
-  outline: 2px solid var(--form-accent, var(--seal));
+  outline: 2px solid var(--form-focus, var(--seal));
   outline-offset: 3px;
+}
+.rating-option:has(input:checked) {
+  border: 2px solid var(--form-focus);
 }
 .ink-site {
   position: relative;
@@ -232,7 +235,7 @@ body {
   border-color: var(--form-text);
 }
 .ink-form .form-control:focus-visible {
-  outline: 2px solid var(--form-accent);
+  outline: 2px solid var(--form-focus);
   outline-offset: 3px;
   border-color: var(--form-text);
 }
