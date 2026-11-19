@@ -15,6 +15,10 @@ body {
   font-family: var(--font-editorial);
   font-optical-sizing: auto;
 }
+.rating-option:has(input:focus-visible) {
+  outline: 2px solid var(--form-accent, var(--seal));
+  outline-offset: 3px;
+}
 .ink-site {
   position: relative;
   isolation: isolate;

@@ -37,6 +37,7 @@ export function QuestionFields({
           name: field.key,
           disabled,
           "aria-invalid": Boolean(error),
+          "aria-required": field.required,
           "aria-describedby": described,
         };
         const value = values[field.key];
@@ -151,7 +152,7 @@ export function QuestionFields({
               ).map((rating) => (
                 <label
                   key={rating}
-                  className="relative flex size-12 cursor-pointer items-center justify-center rounded-lg border border-[var(--form-border)] has-checked:bg-[var(--form-accent)] has-checked:text-[var(--form-on-accent)] has-focus-visible:outline-2"
+                  className="rating-option relative flex size-12 cursor-pointer items-center justify-center rounded-lg border border-[var(--form-border)] has-checked:bg-[var(--form-accent)] has-checked:text-[var(--form-on-accent)]"
                 >
                   <input
                     type="radio"
@@ -161,6 +162,8 @@ export function QuestionFields({
                     checked={text === rating}
                     disabled={disabled}
                     aria-label={rating + " of " + (field.configuration.ratingMax ?? 5)}
+                    aria-required={field.required}
+                    aria-invalid={Boolean(error)}
                     aria-describedby={described}
                     onChange={() => onChange(field.key, rating)}
                   />

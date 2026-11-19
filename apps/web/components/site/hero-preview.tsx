@@ -29,7 +29,7 @@ export function HeroPreview() {
               <label
                 key={value}
                 className={
-                  "relative flex size-11 cursor-pointer items-center justify-center rounded-sm border text-sm " +
+                  "rating-option relative flex size-11 cursor-pointer items-center justify-center rounded-sm border text-sm " +
                   (rating === value
                     ? "border-[#9f382c] bg-[#9f382c] text-white"
                     : "border-[#827a6e]")
@@ -61,7 +61,7 @@ export function HeroPreview() {
       </div>
       <div className="relative ml-8 mt-6 flex items-center gap-3">
         <span aria-hidden="true" className="h-px w-10 bg-current" />
-        <p className="font-serif text-sm italic text-muted-foreground">
+        <p className="bg-background px-1 font-serif text-sm italic text-muted-foreground">
           A blank canvas. Your voice.
         </p>
       </div>

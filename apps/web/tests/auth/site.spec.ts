@@ -1,5 +1,26 @@
 import { test, expect } from "@playwright/test";
 import { setupClerkTestingToken } from "@clerk/testing/playwright";
+test("forms stay private and explain readiness when JavaScript is disabled", async ({
+  browser,
+}) => {
+  const context = await browser.newContext({
+    javaScriptEnabled: false,
+    baseURL: "http://localhost:3001",
+  });
+  try {
+    const page = await context.newPage();
+    await page.goto("/demo", { waitUntil: "domcontentloaded" });
+    await expect(page.getByRole("button", { name: "Submit response", exact: true })).toBeDisabled();
+    await expect(page.getByLabel(/What should we call you/)).toBeDisabled();
+    await expect(
+      page.getByText("Enable JavaScript to complete this form.", { exact: false }),
+    ).toBeVisible();
+    await expect(page.locator("form")).toHaveAttribute("method", "post");
+    expect(new URL(page.url()).search).toBe("");
+  } finally {
+    await context.close();
+  }
+});
 test("public pages, mobile navigation and the unsaved demo work without an account", async ({
   page,
 }) => {

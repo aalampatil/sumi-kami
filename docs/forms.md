@@ -49,6 +49,8 @@ Submissions validate required visible questions, types, choices, file ownership,
 
 A UUID idempotency key serializes concurrent retries for one form. The server stores a SHA-256 request digest rather than another raw answer snapshot. The same payload returns the original receipt; a changed payload conflicts. A completed retry can recover its receipt after a later publication or closure. New attempts against an outdated version must reload the form. Expired/deleted receipts are unavailable. There is no anonymous save/resume endpoint or public response-directory endpoint.
 
+Inputs and submission remain disabled until their client handlers are hydrated. The server-rendered readiness message explains the JavaScript requirement when controls cannot become available. The native form method is POST, so a fallback submission cannot put answers into the page URL. Required/invalid states and visible keyboard focus are exposed on rating controls as well as ordinary inputs.
+
 ## Attachments
 
 The API accepts multipart submissions with one `data` JSON field and `file:<questionKey>` file parts. JSON submission remains available for responses without files. File IDs in JSON do not authorize attaching existing objects.

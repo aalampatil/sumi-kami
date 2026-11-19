@@ -9,6 +9,7 @@ import type { PublishedForm } from "@repo/trpc/client";
 import { trpc } from "~/trpc/client";
 import { QuestionFields } from "./question-fields";
 import { Enso, InkMark } from "~/components/brand/ink-art";
+import { useHydrated } from "~/lib/use-hydrated";
 
 export function RespondentForm({
   definition,
@@ -19,6 +20,7 @@ export function RespondentForm({
   published?: PublishedForm;
   preview?: boolean;
 }) {
+  const hydrated = useHydrated();
   const [values, setValues] = useState<Answers>({}),
     [files, setFiles] = useState<Record<string, File[]>>({}),
     [issues, setIssues] = useState<FieldIssue[]>([]);
@@ -207,6 +209,7 @@ export function RespondentForm({
             ) : null}
             <form
               ref={form}
+              method="post"
               onSubmit={(event) => void send(event)}
               noValidate
               className="mt-10 space-y-10"
@@ -236,7 +239,7 @@ export function RespondentForm({
                       onFiles={(key, selected) =>
                         setFiles((previous) => ({ ...previous, [key]: selected }))
                       }
-                      disabled={pending}
+                      disabled={pending || !hydrated}
                     />
                   </section>
                 ))}
@@ -251,7 +254,7 @@ export function RespondentForm({
               <div className="flex flex-wrap items-center justify-between gap-4 border-t border-[var(--form-border)] pt-6">
                 <button
                   type="submit"
-                  disabled={pending || !path.fields.length}
+                  disabled={!hydrated || pending || !path.fields.length}
                   className="form-submit inline-flex min-h-12 items-center justify-center gap-3 rounded-lg bg-[var(--form-accent)] px-6 py-3 text-sm font-medium text-[var(--form-on-accent)] disabled:opacity-60"
                 >
                   {pending ? "Submitting…" : definition.settings.submitLabel}
@@ -263,6 +266,12 @@ export function RespondentForm({
                 </span>
               </div>
             </form>
+            {!hydrated ? (
+              <p role="status" className="mt-6 text-sm">
+                Enable JavaScript to complete this form. Your answers are not submitted while it is
+                disabled.
+              </p>
+            ) : null}
           </>
         )}
         <footer className="mt-16 border-t border-[var(--form-border)] pt-5 text-xs text-[var(--form-muted)]">
