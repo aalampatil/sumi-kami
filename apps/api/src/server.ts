@@ -80,7 +80,11 @@ app.use(
   }),
 );
 
-const requestError: ErrorRequestHandler = (error, _req, res, _next) => {
+const requestError: ErrorRequestHandler = (error, _req, res, next) => {
+  if (res.headersSent) {
+    next(error);
+    return;
+  }
   const status =
     error?.type === "entity.too.large" ? 413 : error instanceof SyntaxError ? 400 : 500;
   res.status(status).json({

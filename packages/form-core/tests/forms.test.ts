@@ -146,3 +146,22 @@ test("unsupported date, email, and repeated multi-choice answers are rejected", 
     3,
   );
 });
+test("ending from a question skips later required questions in the same step", () => {
+  const definition = newDefinition("Early completion"),
+    source = definition.steps[0]!.fields[0]!,
+    later = newField();
+  later.required = true;
+  definition.steps[0]!.fields.push(later);
+  definition.rules = [
+    {
+      sourceFieldKey: source.key,
+      condition: { formatVersion: 1, fieldKey: source.key, operator: "equals", value: "finish" },
+      actionKind: "END_FORM",
+    },
+  ];
+  assert.deepEqual(validateAnswers(definition, { [source.key]: "finish" }), []);
+  assert.equal(
+    formPath(definition, { [source.key]: "finish", [later.key]: "Skipped" }).fields.length,
+    1,
+  );
+});

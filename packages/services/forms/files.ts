@@ -19,7 +19,7 @@ export class LocalPrivateFileStore implements PrivateFileStore {
   private location(key: string) {
     if (!/^[a-f0-9-]{36}$/.test(key)) throw new Error("Invalid private object key.");
     const configured = process.env.UPLOAD_DIRECTORY;
-    if (!configured && process.env.NODE_ENV === "production")
+    if (!configured && ["production", "prod"].includes(process.env.NODE_ENV ?? ""))
       throw new Error("UPLOAD_DIRECTORY is required for attachments in production.");
     const directory = resolve(configured || join(process.cwd(), ".data", "uploads"));
     return { directory, file: join(directory, key) };

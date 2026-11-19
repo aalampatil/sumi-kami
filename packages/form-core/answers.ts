@@ -67,6 +67,7 @@ export function formPath(
   while (index < definition.steps.length) {
     const step = definition.steps[index]!;
     stepKeys.push(step.key);
+    let next = index + 1;
     for (const field of step.fields) {
       const rules = definition.rules.filter((rule) => rule.targetFieldKey === field.key);
       let visible = !rules.some((rule) => rule.actionKind === "SHOW_FIELD");
@@ -76,21 +77,20 @@ export function formPath(
       if (visible) {
         fields.push(field);
         if (answers[field.key] !== undefined) visibleAnswers[field.key] = answers[field.key]!;
+        const route = definition.rules.find(
+          (rule) =>
+            rule.sourceFieldKey === field.key &&
+            ["GO_TO_STEP", "END_FORM"].includes(rule.actionKind) &&
+            matches(rule.condition, visibleAnswers, definition),
+        );
+        if (route) {
+          next =
+            route.actionKind === "END_FORM"
+              ? definition.steps.length
+              : definition.steps.findIndex((step) => step.key === route.targetStepKey);
+          break;
+        }
       }
-    }
-    let next = index + 1;
-    for (const rule of definition.rules) {
-      if (
-        !step.fields.some((field) => field.key === rule.sourceFieldKey) ||
-        !["GO_TO_STEP", "END_FORM"].includes(rule.actionKind) ||
-        !matches(rule.condition, visibleAnswers, definition)
-      )
-        continue;
-      next =
-        rule.actionKind === "END_FORM"
-          ? definition.steps.length
-          : definition.steps.findIndex((step) => step.key === rule.targetStepKey);
-      break;
     }
     if (next <= index) break;
     index = next;
