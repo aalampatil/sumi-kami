@@ -163,7 +163,7 @@ Selected form theme
         -> Japanese Ink / city-inspired / futuristic / custom expression
 ```
 
-The creator's dashboard light/dark preference is separate from a published form's appearance. Future reusable form appearance settings should include a preset identity/version and a resolved snapshot captured at publication so preset changes do not silently alter historical forms. The existing version settings can support that future contract; a reusable-theme registry/service is not implemented yet. No brand styling or form theme has been applied to the UI in these documentation changes.
+The creator's dashboard light/dark preference is separate from a published form's appearance. Implemented appearance settings include a preset identity/version and a resolved snapshot captured at publication, so preset changes do not silently alter historical forms. Japanese Ink composition, local typography, custom colors, and runtime contrast checks are implemented. A user-managed reusable-theme registry/service remains a future capability.
 
 ## 6. Current state and gaps
 
@@ -201,7 +201,7 @@ Build stages 2–5 as small connected slices. For example, implement one text qu
 
 Include a second workspace/user in verification to prove isolation. Check validation errors, duplicate retries, keyboard use, mobile completion, and old responses after publishing a new version. This establishes a usable end-to-end product on the existing database foundation.
 
-File bytes will eventually require private object storage linked to the existing file metadata, with upload authorization and retryable retention cleanup. Notifications/integrations can later run after a committed submission through a durable job mechanism when needed. No storage provider, queue, microservice split, or deployment platform is selected by this rough plan.
+File bytes currently use a private filesystem adapter linked to scoped file metadata and authenticated downloads. Shared/object storage, crash-orphan reconciliation, and scheduled physical retention cleanup remain production follow-ups. Notifications/integrations can later run after a committed submission through a durable job mechanism when needed. No storage provider, queue, microservice split, or deployment platform is selected by this rough plan.
 
 ## Related documents
 

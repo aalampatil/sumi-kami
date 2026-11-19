@@ -2,13 +2,13 @@
 
 The form-builder database evolved in two steps: the original mutable prototype became a workspace-scoped, versioned relational model; Clerk then replaced the application's authentication path while retaining local user UUIDs.
 
-The latest committed schema is migration **`0010_clerk_identity_mapping`**. This document compares designs, not live deployment state. The [recorded production migration](migration-runs/2026-11-07.md) applied `0000`–`0009`; Clerk setup verified `0010` on development/test databases. No database was queried or migrated for this documentation update.
+The latest committed schema is migration **`0013_workspace_invitations`**. This document compares designs, not live deployment state. The [recorded production migration](migration-runs/2026-11-07.md) applied `0000`–`0009`; subsequent Clerk, workspace, and form work verified migrations through `0013` on development/test databases. This documentation update does not query or migrate production.
 
 ## Design timeline
 
 | Stage                | Original prototype                                               | Approved Phase 1 before Clerk                                                 | Current design with Clerk                                                         |
 | -------------------- | ---------------------------------------------------------------- | ----------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
-| Schema history       | `0000`–`0001`                                                    | `0000`–`0009`                                                                 | `0000`–`0010`                                                                     |
+| Schema history       | `0000`–`0001`                                                    | `0000`–`0009`                                                                 | `0000`–`0013`                                                                     |
 | Authentication       | Custom password sign-in and cookie sessions                      | Custom password sign-in and cookie sessions                                   | Clerk sessions verified by the web app and API                                    |
 | User identity        | Local UUID                                                       | Same local UUID                                                               | Same UUID plus nullable unique `clerk_user_id`                                    |
 | Tenancy              | Forms attached directly to an owner                              | Workspaces, ownership and memberships                                         | Same local workspaces and memberships; no automatic Clerk Organizations migration |
@@ -17,9 +17,9 @@ The latest committed schema is migration **`0010_clerk_identity_mapping`**. This
 | Selections and files | Options in field JSON; no dedicated relational file-answer model | Normalized options, selected-option rows, file metadata and attachment links  | Unchanged                                                                         |
 | Isolation            | No workspace-based model                                         | Composite scope FKs and forced RLS                                            | Same protections; Clerk identity still needs application authorization            |
 | History/retention    | Creator deletion could cascade forms/responses                   | Soft deletion, restricted ownership deletion, audit and retention foundations | Unchanged; local auth records retained for a separate cutover/cleanup decision    |
-| PostgreSQL tables    | 7 `public` tables                                                | 7 preserved `public` + 15 `builder` tables                                    | Same 22 application tables; Clerk is external                                     |
+| PostgreSQL tables    | 7 `public` tables                                                | 7 preserved `public` + 15 `builder` tables                                    | 23 application tables after adding workspace invitations; Clerk is external       |
 
-The table counts exclude Drizzle's migration-history table. The core ERDs omit five preserved legacy `public` content tables, while showing users, legacy sessions and the 15 core tables. The current diagram adds an external Clerk node; that does not create a twenty-third application table.
+The table counts exclude Drizzle's migration-history table. The core ERDs omit five preserved legacy `public` content tables, while showing users, legacy sessions and the 16 core tables. The external Clerk node is not a PostgreSQL table. Workspace invitations are the application table added after the Clerk identity mapping.
 
 ## Historical and current diagrams
 
@@ -30,7 +30,7 @@ All diagram files below use **Eraser ERD syntax**. Paste their contents into an 
 | [Original prototype ERD](history/prototype-0001.eraser)             | Generated from the original `0001_snapshot.json`, including all seven legacy tables                   |
 | [Original Phase 1 architecture](history/phase-1-original-design.md) | Archived approved architecture text before its Clerk update, including historical repository findings |
 | [Pre-Clerk Phase 1 core ERD](history/phase-1-core.eraser)           | Earlier core relationship diagram through `0009`, with local passwords/sessions active                |
-| [Current architecture](architecture.md)                             | Current decisions and relationships through `0010`                                                    |
+| [Current architecture](architecture.md)                             | Current decisions and relationships through `0013`                                                    |
 | [Current ERD](schema.eraser)                                        | Clerk identity mapping, stable local users, core form data and marked legacy sessions                 |
 | [README diagram](../../README.md#database-er-diagram-phase-1)       | An embedded copy of the current Eraser source                                                         |
 

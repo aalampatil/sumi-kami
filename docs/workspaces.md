@@ -59,6 +59,8 @@ pnpm dev:auth
 
 The setup command reads `apps/api/.env.local`, accepts only a loopback PostgreSQL database ending in `_dev`, applies pending migrations there, provisions a restricted login, verifies it, and writes only its runtime connection setting to that ignored file. It prints no credentials. Running it again rotates that local login's password; restart the API afterward. It does not provision production resources.
 
+For a fresh Docker Compose setup, `docker compose up -d` initializes `sumikami_dev` on port 5432, matching `apps/api/.env.example`. Copy that example to `apps/api/.env.local` and configure the Clerk development keys before running setup. Existing PostgreSQL volumes keep their original database names: changing `POSTGRES_DB` does not rename or recreate an existing database. Keep the already documented `sumikami_clerk_dev` instance on port 55433 when using the established Clerk development environment; no existing data needs to be reset.
+
 Root `build` and `dev` commands delegate to Turbo without loading the root `.env` into every app. Next.js loads the web environment; the API explicitly loads its own local file without variable expansion; database Studio explicitly loads the root database configuration. This prevents an older root Clerk instance from overriding the web app's keys at build time. Keep build and runtime public authentication settings consistent.
 
 Open `http://localhost:3001/dashboard`, sign in, and choose **Create workspace**. Names may contain Unicode. Addresses use lowercase ASCII letters, numbers, and single hyphens, are globally unique, and remain stable when the display name changes. Non-Latin names can use an explicit address.

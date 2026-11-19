@@ -14,6 +14,8 @@ Start with the [project map and rough implementation plan](docs/project-plan.md)
 
 Build and publish versioned forms, share public respondent links, collect validated answers and private attachments, review historical responses, export a response page to CSV, and invite teammates with workspace roles. The public website includes a hero, shared header/footer, features and approach pages, and an interactive demo. See the [form and team implementation guide](docs/forms.md) and [workspace setup guide](docs/workspaces.md).
 
+The [latest implementation audit](docs/verification/2026-11-19-audit.md) records fixes, verification evidence, and remaining production/follow-up capabilities.
+
 For the existing local Clerk development database, run `pnpm --filter @repo/database db:setup:workspaces` before `pnpm dev:auth`. The guarded setup command applies local migrations and writes a restricted `TENANT_DATABASE_URL` to the ignored API environment file. Production provisioning remains separate.
 
 ## Phase 1: database foundation
@@ -49,12 +51,12 @@ The professional product interface and selectable respondent themes are separate
 
 ## Database ER diagram (Phase 1)
 
-Updated through migration `0010_clerk_identity_mapping`. Paste the code below into an **Entity Relationship Diagram** in Eraser.io using [Eraser's ERD syntax](https://docs.eraser.io/erd-syntax), or copy the [standalone current ER source](docs/database/schema.eraser). See the [old-to-current design comparison](docs/database/design-evolution.md) and [current architecture](docs/database/architecture.md) for the reasons and relationships.
+Updated through migration `0013_workspace_invitations`. Paste the code below into an **Entity Relationship Diagram** in Eraser.io using [Eraser's ERD syntax](https://docs.eraser.io/erd-syntax), or copy the [standalone current ER source](docs/database/schema.eraser). See the [old-to-current design comparison](docs/database/design-evolution.md) and [current architecture](docs/database/architecture.md) for the reasons and relationships.
 
-`clerk_identity` represents the external Clerk service, not a PostgreSQL table. Its link to `users.clerk_user_id` is an application-managed identity mapping, not a SQL foreign key. The 15 core tables are in `builder`; `users` and retained legacy `sessions` are in `public`.
+`clerk_identity` represents the external Clerk service, not a PostgreSQL table. Its link to `users.clerk_user_id` is an application-managed identity mapping, not a SQL foreign key. The 16 core tables are in `builder`; `users` and retained legacy `sessions` are in `public`.
 
 ```text
-// Current core schema through migration 0010, plus external Clerk identity.
+// Current core schema through migration 0013, plus external Clerk identity.
 // clerk_identity is external; its link is not a PostgreSQL foreign key.
 // users/sessions are public tables; other local entities are in builder.
 // sessions/password_hash are legacy, not current authentication.
@@ -109,6 +111,20 @@ workspace_memberships {
   workspace_id uuid fk
   user_id uuid fk
   role text
+}
+
+workspace_invitations {
+  id uuid pk
+  workspace_id uuid fk
+  created_by uuid fk
+  email text
+  role text
+  token_hash text unique
+  created_at timestamptz
+  expires_at timestamptz
+  accepted_at timestamptz
+  accepted_by uuid fk
+  revoked_at timestamptz
 }
 
 forms {
@@ -260,6 +276,9 @@ sessions.user_id > users.id
 workspaces.owner_user_id > users.id
 workspace_memberships.workspace_id > workspaces.id
 workspace_memberships.user_id > users.id
+workspace_invitations.workspace_id > workspaces.id
+workspace_invitations.created_by > users.id
+workspace_invitations.accepted_by > users.id
 forms.workspace_id > workspaces.id
 forms.creator_user_id > users.id
 forms.published_version_id - form_versions.id

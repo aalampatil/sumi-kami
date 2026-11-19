@@ -1,10 +1,10 @@
 # Sumikami database architecture
 
-Status: implemented for Phase 1, Clerk development identity mapping, and workspace directory access. The operations guide describes deployment boundaries; the history archive preserves the earlier design.
+Status: implemented for versioned forms, public intake, Clerk development identity mapping, workspace directory access, and invitation links. The operations guide describes deployment boundaries; the history archive preserves the earlier design.
 
 ## Current schema and design history
 
-The schema is implemented through migration `0011_workspace_discovery`, which adds directory policies without changing tables. It contains **22 application tables**: 15 core tables in `builder` and 7 identity/compatibility tables in `public`. Clerk is an external authentication service, not another PostgreSQL table. Drizzle migration metadata is excluded from that count.
+The schema is implemented through migration `0013_workspace_invitations`. It contains **23 application tables**: 16 core tables in `builder` and 7 identity/compatibility tables in `public`. Migration `0011` adds workspace discovery policies, `0012` adds exact-slug public form lookup, and `0013` adds hashed invitation tokens and scoped access. Clerk is an external authentication service, not another PostgreSQL table. Drizzle migration metadata is excluded from that count.
 
 See the [old-to-current comparison](design-evolution.md), [original Phase 1 plan](history/phase-1-original-design.md), and [historical prototype ERD](history/prototype-0001.eraser) for how the plan changed. Historical inspection findings are preserved in that archive instead of being presented as current limitations.
 
@@ -54,6 +54,8 @@ New tables use snake_case names, UUID primary keys with PostgreSQL-generated def
 The extra workspace/version columns are deliberate relational scope keys, not independent sources of truth. Add supporting unique keys only where required by composite foreign keys. Answer kind must match the field type's storage kind through a database guard; selection and file child rows must match the answer kind. Deferred constraint triggers validate final transaction state so answers and their child rows can be inserted together.
 
 ## Entity-relationship diagram
+
+`workspace_invitations` stores the workspace, normalized email, assigned role, unique token hash, creator, expiry, acceptance actor/time, and revocation time. The raw invitation token is never stored. Scoped policies protect management operations; token lookup grants access only to the matching invitation. Acceptance still requires authenticated, verified-email authorization in the service.
 
 Use the [current Eraser source](schema.eraser), also embedded in the [README](../../README.md#database-er-diagram-phase-1). For the earlier design, use the [pre-Clerk core ERD](history/phase-1-core.eraser) and [prototype ERD](history/prototype-0001.eraser).
 
@@ -172,4 +174,4 @@ Each commit will include coherent model/migration changes or focused verificatio
 
 The approved design is implemented in a separate `builder` PostgreSQL namespace so existing `public` tables and responses remain intact. Existing form/field IDs are retained in imported unpublished drafts; legacy responses remain explicitly unversioned and exportable. All imported settings/access restrictions require review before intake cutover. Database publication guards enforce structural integrity and supported condition references; application-specific configuration validation and routing semantics remain service responsibilities.
 
-Forced RLS and runtime-role checks are implemented. Real PostgreSQL 15 query plans exposed a numeric-range optimization limitation under RLS, documented in the operations guide; exact numeric values and tenant isolation are retained. Production cutover still needs confirmed legacy timestamp timezone and deployment/write-traffic information. No application database was changed during implementation.
+Forced RLS and runtime-role checks are implemented. Real PostgreSQL 15 query plans exposed a numeric-range optimization limitation under RLS, documented in the operations guide; exact numeric values and tenant isolation are retained. Production cutover still needs confirmed legacy timestamp timezone and deployment/write-traffic information. Development migrations have been applied locally; this work did not migrate production.

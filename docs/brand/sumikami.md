@@ -108,9 +108,9 @@ Marketing can be expressive; controls and feedback should be direct. Use “Crea
 
 The product UI should stay minimal, fast and professional. Atmospheric artwork, immersive transitions and more expressive typography belong to intentional marketing/form experiences, with accessibility and reduced-motion behavior preserved.
 
-The database already provides immutable `form_versions.settings` for future validated appearance configuration. That foundation can capture a reusable preset reference, its version and a resolved configuration snapshot when publishing. A mutable theme reference alone must not silently change an already published form.
+Immutable `form_versions.settings` stores the validated appearance preset identity, format version, and resolved color/font snapshot when publishing. Changes to preset defaults do not silently change an already published form. The shared renderer delivers the same appearance in preview and respondent pages.
 
-A new preset registry, theme management APIs, font delivery and runtime theme validation are future features. There is no new reusable-theme service or dedicated preset table in this change, and no production migration is required. Do not repurpose preserved legacy theme records as the new theme system without a separate design and migration decision.
+The local preset catalog, self-hosted fonts, custom colors, and runtime validation are implemented. A user-managed reusable-theme service and dedicated preset table remain future capabilities. Do not repurpose preserved legacy theme records as the new theme system without a separate design and migration decision.
 
 Keep the existing project structure: `apps/web` renders the brand and selected form appearance; services validate appearance contracts and publish snapshots; the database preserves version relationships. The [project plan](../project-plan.md) shows these connections.
 

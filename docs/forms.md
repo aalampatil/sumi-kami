@@ -33,7 +33,7 @@ Public rendering uses an anonymous query client and omits credentials on submiss
 
 Thirteen question types are supported: short/long text, email, number, single/multiple choice, dropdown, checkbox, rating, date, date/time, structured JSON, and file upload. Numeric answers remain decimal strings; JavaScript floating-point conversion does not change their precision.
 
-Definitions support up to 20 steps, 200 total questions, 100 choices per question, and 50 conditional rules. Conditions support bounded all/any/not expressions in the API. The initial visual editor creates individual comparisons and preserves compound expressions supplied through the API. Visibility targets and step routes must point forward; comparisons can use only the source or earlier questions. Routing is evaluated when its source question is reached, and hidden or skipped answers are excluded from storage.
+Definitions support up to 20 steps, 100 questions per step, 200 total questions, 100 choices per question, and 50 conditional rules. The visual editor and API support nested AND, OR, and NOT expressions, with up to 100 condition nodes, 20 entries per group, and 12 nesting levels. Choose when a rule is evaluated separately from the earlier questions it compares. Visibility targets and step routes must point forward; comparisons can use only the source or earlier questions. The editor offers only later route targets and preserves nested expressions across save/publish. Routing is evaluated when its source question is reached, and hidden or skipped answers are excluded from storage.
 
 Draft saves require an expected revision. Competing editors receive a conflict instead of silently overwriting changes. Publication validates the complete definition and atomically freezes the version and switches the form’s published pointer. Later editing clones the definition into a new draft with fresh database IDs and preserved logical question keys.
 
@@ -47,9 +47,13 @@ Migration `0012_public_form_lookup` grants a narrow SELECT policy for exact-slug
 
 Submissions validate required visible questions, types, choices, file ownership, and limits on the server. Answers and attachment links are written before an atomic completion transition. Submissions are pinned to their immutable version.
 
+Optional blank/whitespace-only answers and empty selections are omitted from answer storage. Boolean false and numeric zero remain real answers; meaningful text retains its original spaces. This uses the same answered-state check as validation, so blank optional dates, numbers, choices, and JSON never reach typed storage.
+
 A UUID idempotency key serializes concurrent retries for one form. The server stores a SHA-256 request digest rather than another raw answer snapshot. The same payload returns the original receipt; a changed payload conflicts. A completed retry can recover its receipt after a later publication or closure. New attempts against an outdated version must reload the form. Expired/deleted receipts are unavailable. There is no anonymous save/resume endpoint or public response-directory endpoint.
 
 Inputs and submission remain disabled until their client handlers are hydrated. The server-rendered readiness message explains the JavaScript requirement when controls cannot become available. The native form method is POST, so a fallback submission cannot put answers into the page URL. Required/invalid states and visible keyboard focus are exposed on rating controls as well as ordinary inputs.
+
+Keyboard focus uses a color that contrasts with both the page and control surface, falling back to the form's text color when a custom accent is too close to either background. Builder link navigation, including dashboard sidebar links, warns before discarding unsaved changes. Reloads and full-page navigation use the browser's unload warning; browser-history draft recovery is not implemented.
 
 ## Attachments
 
@@ -81,7 +85,7 @@ Activity shows available response totals, the last seven days, 14 daily UTC coun
 
 ## Verification
 
-Run `pnpm check-types`, `pnpm lint`, `pnpm build`, and `pnpm --filter @repo/form-core test` from the root. The web browser suite is `pnpm --filter web test:auth:e2e`; start web/API first with matching Clerk development keys.
+Run `pnpm check-types`, `pnpm lint`, `pnpm build`, `pnpm --filter @repo/form-core test`, and `pnpm --filter @repo/services test:forms:unit` from the root. The web browser suite is `pnpm --filter web test:auth:e2e`; start web/API first with matching Clerk development keys.
 
 PostgreSQL suites require an explicitly configured disposable loopback `TEST_DATABASE_URL` ending in `_test`:
 
