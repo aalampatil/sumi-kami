@@ -2,7 +2,7 @@
 
 Sumikami lets a creator build and publish a form, lets respondents fill it in, and lets an authorized team review the submissions. Workspaces connect people to forms; published versions connect form definitions to their historical answers. Its brand promise is **Make every question an experience.**
 
-This document is a rough map of the whole project. It describes the intended connections and build order, rather than a list of features already working.
+This document maps the project and its build order. The connected form, respondent, results, team, and public website journeys are implemented locally; see the [implementation and operating guide](forms.md) for supported behavior and remaining production work.
 
 ## 1. The overall connection
 
@@ -167,18 +167,18 @@ The creator's dashboard light/dark preference is separate from a published form'
 
 ## 6. Current state and gaps
 
-| Area                    | Current state                                                                                                                     |
-| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| Database foundation     | Implemented: schema, migrations, tenant/lifecycle protections, legacy preservation, and PostgreSQL integration tests              |
-| Existing authentication | Clerk development web/API integration is verified; production identity import and session cutover remain separate                 |
-| Workspace authorization | Implemented: actor-scoped discovery, capability enforcement, creation and settings APIs; invitations and member management follow |
-| Form/submission APIs    | Need services and routes aligned with the versioned schema                                                                        |
-| Web app                 | Clerk sign-in/up and protected workspace dashboard/settings are implemented; form-builder product journeys are planned            |
-| Japanese Ink theme      | Specification and palette exist; visual implementation is planned                                                                 |
-| Sumikami brand          | Product light/dark palette is applied centrally; final logo assets and selected brand font integration follow                     |
-| Git hooks               | Husky checks staged-file formatting through lint-staged and Prettier                                                              |
+| Area                    | Current state                                                                                                                                                      |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Database foundation     | Implemented: schema, migrations, tenant/lifecycle protections, legacy preservation, and PostgreSQL integration tests                                               |
+| Existing authentication | Clerk development web/API integration is verified; production identity import and session cutover remain separate                                                  |
+| Workspace authorization | Implemented: actor discovery, capabilities, creation/settings, expiring invitation links, verified-email acceptance, and member management                         |
+| Form/submission APIs    | Implemented: revisioned drafts, publication, immutable history, validation, idempotent intake, attachments, paginated responses, CSV export and activity reporting |
+| Web app                 | Implemented: public website/demo, Clerk sign-in/up, workspace forms/settings/members, builder, respondent flow, and results                                        |
+| Japanese Ink theme      | Implemented with Minimal, Midnight and custom colors; shared preview/respondent renderer with published appearance snapshots                                       |
+| Sumikami brand          | Implemented: central light/dark palette, original ink-circle vector mark, local Inter/Noto Serif JP typography, and public landing pages                           |
+| Git hooks               | Husky checks staged-file formatting through lint-staged and Prettier                                                                                               |
 
-The stale legacy auth/router imports were repaired during the approved Clerk integration. Express and Next.js builds and the development sign-up/API/sign-out/returning-sign-in flow now pass. Form endpoints remain unimplemented against the new schema; an empty public namespace does not imply usable respondent APIs. See the [Clerk setup guide](auth/clerk-setup.md) for verification and production rollout boundaries.
+The stale legacy auth/router imports were repaired during the Clerk integration. Forms now use the versioned builder schema through protected creator procedures and validated anonymous intake. See the [Clerk setup guide](auth/clerk-setup.md) for production identity rollout boundaries and the [forms guide](forms.md) for file-storage, retention, rate-limit, and notification limits.
 
 Database runtime credentials, forced RLS, transaction context, privileged migration connections, retention, and legacy cutover procedures are documented in the [operations guide](database/operations.md).
 

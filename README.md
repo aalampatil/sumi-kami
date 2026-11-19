@@ -10,9 +10,9 @@ Production-style form builder SaaS built on a Turborepo monorepo with **tRPC**, 
 
 Start with the [project map and rough implementation plan](docs/project-plan.md) to see how the apps, API, services, database, theme, and user journeys connect, along with the current gaps and build order.
 
-## Workspace foundation
+## Product journeys
 
-The dashboard now supports creating, discovering, and opening authorized workspaces, changing workspace names and default response retention, and selecting product light/dark mode. Protected tRPC and REST endpoints share service authorization and a separate restricted database connection. See the [workspace implementation and setup guide](docs/workspaces.md). Form drafting, publication, and respondent journeys follow this slice.
+Build and publish versioned forms, share public respondent links, collect validated answers and private attachments, review historical responses, export a response page to CSV, and invite teammates with workspace roles. The public website includes a hero, shared header/footer, features and approach pages, and an interactive demo. See the [form and team implementation guide](docs/forms.md) and [workspace setup guide](docs/workspaces.md).
 
 For the existing local Clerk development database, run `pnpm --filter @repo/database db:setup:workspaces` before `pnpm dev:auth`. The guarded setup command applies local migrations and writes a restricted `TENANT_DATABASE_URL` to the ignored API environment file. Production provisioning remains separate.
 
@@ -26,17 +26,17 @@ For the existing local Clerk development database, run `pnpm --filter @repo/data
 - PostgreSQL integration tests for migrations, integrity, isolation, concurrency, and query plans
 - Optional development draft fixture without login credentials
 
-See [database architecture](docs/database/architecture.md), [operations and validation](docs/database/operations.md), and the [commit ledger](docs/database/changes.md). Form-builder APIs, submission validation services, and UI development follow this database phase.
+See [database architecture](docs/database/architecture.md), [operations and validation](docs/database/operations.md), and the [commit ledger](docs/database/changes.md). The subsequent form APIs, submission services, and UI are documented in the [product guide](docs/forms.md).
 
 ## Brand and theme direction
 
 **Sumikami** is the product brand: artistic, futuristic, thoughtful, precise, and immersive. The [brand identity guide](docs/brand/sumikami.md) defines the ink/paper positioning, six-color palette, logo briefs, Inter/Noto Serif JP typography direction, and messaging. It includes a [brand palette reference](docs/brand/sumikami-palette.svg).
 
-The professional product interface and selectable respondent themes are separate systems. [Japanese Ink](docs/design/japanese-ink.md) is one form-theme direction; city-inspired, futuristic and custom brand themes can follow. Its [preset palette](docs/design/japanese-ink-palette.svg) is a separate initial study. These documents guide the future UI phase; no visual reimplementation or database migration is included in the branding update.
+The professional product interface and selectable respondent themes are separate systems. [Japanese Ink](docs/design/japanese-ink.md) now implements the ink/paper composition with local typography, original vector brushwork, focused question layout, ink actions, progress, and reduced-motion support. Minimal, Midnight and custom appearance remain selectable. The [preset palette](docs/design/japanese-ink-palette.svg) records the original color study.
 
 ## Apps & packages
 
-- `apps/web`: Next.js workspace dashboard and Clerk screens; form-builder and respondent screens follow
+- `apps/web`: Next.js public website, Clerk screens, workspace dashboard, form builder, respondent forms, results, and team management
 - `apps/api`: Express server exposing:
   - tRPC at `/trpc`
   - OpenAPI REST endpoints at `/api`
@@ -45,6 +45,7 @@ The professional product interface and selectable respondent themes are separate
 - `packages/database`: Drizzle schema + migrations + seed script
 - `packages/trpc`: tRPC server router + client types
 - `packages/services`: backend services (auth, forms, responses, email)
+- `packages/form-core`: shared form definitions, answer/logic validation, and appearance presets
 
 ## Database ER diagram (Phase 1)
 

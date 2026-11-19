@@ -4,7 +4,7 @@
 
 **Make every question an experience.**
 
-Status: selected brand direction for the product previously described as FormCraft. The workspace dashboard now applies central light/dark product colors and shared controls. Final logo assets and the selected brand font integration remain future implementation work; bundled Geist is still the interim UI font. See the [workspace guide](../workspaces.md).
+Status: implemented brand direction for the product previously described as FormCraft. Public pages and product chrome use central light/dark colors, self-hosted Inter/Noto Serif JP typography, and a shared original vector ink-circle mark with a small red dot. The selectable Japanese Ink form experience adds its own paper composition. See the [product guide](../forms.md).
 
 ## Positioning and personality
 
@@ -72,7 +72,7 @@ Develop three related assets rather than scaling one detailed illustration into 
 
 Keep the production symbol simple, reproducible in one color, and recognizable without a textured background. Evaluate a red sun/dot as the restrained identity accent. Mountains, temples, cherry blossoms and elaborate brush textures belong to optional large artwork; they must not be required for recognition at small sizes.
 
-Review positive/reversed versions, monochrome, small sizes, clear space, wordmark legibility and use on varied form backgrounds before approving exports. Use vector masters for the primary mark and icon, with raster exports only where required. The palette SVG accompanying this guide is a color reference, not a production logo. No final logo has been generated or approved by this documentation change.
+The implemented mark is an original vector in `apps/web/components/brand/ink-art.tsx`, with a matching SVG app icon in `public/brand/icon.svg`. It uses the simple ink circle and red dot described above. The palette SVG remains a color reference, not a logo. Keep future exported variants consistent with this source, and review small-size/reversed rendering when extending the asset family.
 
 ## Typography
 
@@ -85,7 +85,7 @@ Review positive/reversed versions, monochrome, small sizes, clear space, wordmar
 
 Use “Create something extraordinary.” as a clean UI specimen and “The art of asking.” as an editorial specimen. Decorative brush fonts should not appear in ordinary questions, labels or inputs. Keep serif treatments selective so the editor remains efficient and precise.
 
-The repository currently bundles Geist Sans and Geist Mono. They are the interim implementation, not the newly selected brand typeface. Integrate the chosen faces during the UI phase after checking distribution notices, weights, loading strategy, fallbacks and language coverage. This document does not install fonts or replace existing font files.
+Inter and Noto Serif JP are now self-hosted as WOFF2 subsets with their SIL licenses. Latin subsets are preloaded, and other glyph ranges load on demand. Geist Mono remains for technical text. The source, delivery approach and notices are recorded in `apps/web/public/fonts/README.md`.
 
 ## Taglines and voice
 

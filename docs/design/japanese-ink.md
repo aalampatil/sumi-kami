@@ -1,12 +1,12 @@
 # Japanese Ink theme
 
-Status: initial selectable form-theme specification for future UI implementation. The [Sumikami brand guide](../brand/sumikami.md) defines the product identity and takes precedence for product chrome, brand colors and typography.
+Status: implemented as a selectable form experience and matching live preview. The [Sumikami brand guide](../brand/sumikami.md) governs product chrome, brand colors and typography. The public website carries the related ink/paper composition; alternate form presets remain independent.
 
 Japanese Ink gives a Sumikami form a calm, deliberate character through warm paper surfaces, charcoal typography, generous space, and small vermilion accents. The form content remains the focus. This guide defines one respondent-facing preset and its preview in the builder, rather than requiring every Sumikami form to look Japanese.
 
 The light/dark values and SVG below remain the preset's initial color study; they are not the authoritative six-color Sumikami brand palette. Dashboard/builder composition notes are supporting UX guidance, with the brand guide governing the surrounding product interface. Other presets can have substantially different visual expression.
 
-This is a design specification. The current UI still uses its starter styles. No theme renderer, new font dependency, asset download, or database migration is introduced by this document.
+The implementation uses self-hosted Inter and Noto Serif JP fonts, original vector Ensō marks, margin-only paper grain, editorial form introductions, ink-filled submit buttons, deliberate question spacing, progress feedback, and an ink-circle completion state. Hover/focus transitions and short entrance motion respect reduced-motion preferences. See `apps/web/styles/japanese-ink.css`, `components/brand/ink-art.tsx`, and the shared respondent renderer.
 
 ![Japanese Ink light and dark color palettes](japanese-ink-palette.svg)
 
@@ -59,18 +59,18 @@ Charts should use a restrained categorical set derived from ink, vermilion, moss
 
 ## Typography
 
-The current scaffold bundles Geist Sans and Geist Mono in `apps/web/app/fonts`; the table below records that interim implementation baseline. The selected Sumikami direction is Inter for interface text and ordinary questions, with Noto Serif JP for suitable editorial/Japanese accents. Apply those choices in the future UI phase after font integration review. Georgia/system serif and bundled Geist remain temporary fallbacks, not competing brand-font selections.
+Inter now supplies interface text and ordinary questions. Noto Serif JP supplies editorial headings and Japanese-script coverage through locally served Unicode subsets. Geist Mono remains for technical values. Latin subsets are preloaded; other language subsets load only when needed. SIL Open Font License notices are included in `apps/web/public/fonts`.
 
-| Role                                 | Font stack                                      | Suggested size / line height | Weight |
-| ------------------------------------ | ----------------------------------------------- | ---------------------------- | ------ |
-| Product or form welcome heading      | `Georgia, "Times New Roman", serif`             | 40–56px / 1.15               | 400    |
-| Respondent question heading          | `Georgia, "Times New Roman", serif`             | 28–36px / 1.25               | 400    |
-| Application page title               | Existing Geist Sans, system sans-serif fallback | 24–32px / 1.25               | 600    |
-| Section heading                      | Existing Geist Sans, system sans-serif fallback | 18–20px / 1.4                | 600    |
-| Body and respondent input            | Existing Geist Sans, system sans-serif fallback | 16px / 1.6                   | 400    |
-| Toolbar, labels and compact controls | Existing Geist Sans, system sans-serif fallback | 14px / 1.4                   | 500    |
-| Help text and metadata               | Existing Geist Sans, system sans-serif fallback | 13–14px / 1.5                | 400    |
-| IDs, shortcuts and technical values  | Existing Geist Mono, system monospace fallback  | 12–14px / 1.5                | 400    |
+| Role                                 | Font stack                                     | Suggested size / line height | Weight |
+| ------------------------------------ | ---------------------------------------------- | ---------------------------- | ------ |
+| Product or form welcome heading      | Noto Serif JP, Japanese/system serif fallback  | 36–56px / 1.3                | 400    |
+| Respondent question heading          | Inter, system sans-serif fallback              | 16–18px / 1.65               | 500    |
+| Application page title               | Inter, system sans-serif fallback              | 24–32px / 1.25               | 600    |
+| Section heading                      | Inter, system sans-serif fallback              | 18–20px / 1.4                | 600    |
+| Body and respondent input            | Inter, system sans-serif fallback              | 16px / 1.6                   | 400    |
+| Toolbar, labels and compact controls | Inter, system sans-serif fallback              | 14px / 1.4                   | 500    |
+| Help text and metadata               | Inter, system sans-serif fallback              | 13–14px / 1.5                | 400    |
+| IDs, shortcuts and technical values  | Existing Geist Mono, system monospace fallback | 12–14px / 1.5                | 400    |
 
 Use the smaller end of display sizes on mobile. Keep paragraph width around 60–70 characters and respondent content around 640–720px maximum. Use relative units and fluid wrapping; the suggested sizes are starting points, not fixed-height constraints. Avoid long uppercase labels and excessively tracked small text. Use tabular numerals for reporting values where supported.
 
@@ -160,7 +160,7 @@ Aim for 44px touch targets for primary controls and icon-button hit areas. Dense
 
 The project already has Tailwind CSS, shadcn-style semantic variables, Radix-based components, locally loaded Geist fonts, and a `next-themes` dependency. Reuse those foundations. Define palette values centrally and let components consume semantic roles rather than scattering hex values through TSX.
 
-The product now uses Sumikami metadata and a `next-themes` light/dark control, with central product colors in `apps/web/styles/product-tokens.css`. The Japanese Ink respondent preset remains a separate planned implementation. Keep this guide's light palette as that preset's design reference and preserve the separation between dashboard mode and published form appearance.
+The product uses Sumikami metadata and a `next-themes` light/dark control, central product colors in `apps/web/styles/product-tokens.css`, and local font declarations in `styles/fonts.css`. The Japanese Ink composition is scoped to its preset in `styles/japanese-ink.css`, so Minimal, Midnight and custom appearance retain their own treatment. The dashboard mode does not change the respondent palette.
 
 Application theme and form appearance are separate settings: an author's dashboard mode should not silently rewrite a published form's appearance. The database's immutable `form_versions.settings` can hold a future validated appearance configuration when that feature is implemented. Define its format/preset version and snapshot the resolved values at publication; a later preset update should not silently restyle older versions. Do not repurpose the legacy themes table or add migrations for this documentation step.
 
