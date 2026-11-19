@@ -16,7 +16,19 @@ export async function createWorkspaceTestAccount(page: Page) {
     if (await verification.isVisible()) await verification.fill("424242");
     await expect(page).toHaveURL(/\/dashboard/);
   }).toPass({ timeout: 45000 });
-  await expect(page.getByTestId("account-overview")).toBeVisible();
   await expect.poll(() => page.evaluate(() => Boolean(window.Clerk?.session))).toBe(true);
-  return { email, token: await page.evaluate(() => window.Clerk.session!.getToken()) };
+  const token = await page.evaluate(() => window.Clerk.session!.getToken());
+  const response = await page.request.get("http://localhost:8000/api/authentication/me", {
+    headers: { Authorization: "Bearer " + token },
+  });
+  const body = await response.json();
+  expect(
+    response.status(),
+    JSON.stringify({
+      status: response.status(),
+      message: body?.message ?? body?.error?.message ?? body?.error,
+    }),
+  ).toBe(200);
+  await expect(page.getByTestId("account-overview")).toBeVisible();
+  return { email, token };
 }
